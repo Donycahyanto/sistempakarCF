@@ -1,7 +1,6 @@
 <title>Pengetahuan - Chirexs 1.0</title>
 <?php
 
-session_start();
 if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
     header('location:index.php');
     exit();
@@ -46,15 +45,15 @@ if (text_form.keyword.value == "")
 }
 return (true);
 }
--->
+
 </script>
 <?php
 include "config/fungsi_alert.php";
 $aksi="modul/pengetahuan/aksi_pengetahuan.php";
-switch($_GET[act]){
+switch ($_GET['act'] ?? '') {
 	// Tampil pengetahuan
   default:
-  $offset=$_GET['offset'];
+  $offset = $_GET['offset'] ?? 0;
 	//jumlah data yang ditampilkan perpage
 	$limit = 15;
 	if (empty ($offset)) {
@@ -62,12 +61,14 @@ switch($_GET[act]){
 	}
   $tampil=mysqli_query($conn,"SELECT * FROM basis_pengetahuan ORDER BY kode_pengetahuan");
 	echo "<form method=POST action='?module=pengetahuan' name=text_form onsubmit='return Blank_TextField_Validator_Cari()'>
-          <br><br><table class='table table-bordered'>
-		  <tr><td><input class='btn bg-olive margin' type=button name=tambah value='Tambah Basis Pengetahuan' onclick=\"window.location.href='pengetahuan/tambahpengetahuan';\"><input type=text name='keyword' style='margin-left: 10px;' placeholder='Ketik dan tekan cari...' class='form-control' value='$_POST[keyword]' /> <input class='btn bg-olive margin' type=submit value='   Cari   ' name=Go></td> </tr>
-          </table></form>";
+      <br><br><table class='table table-bordered'>
+      <tr><td><input class='btn bg-olive margin' type=button name=tambah value='Tambah Basis Pengetahuan' onclick=\"window.location.href='?module=pengetahuan&act=tambahpengetahuan';\">".
+      "<input type=text name='keyword' style='margin-left: 10px;' placeholder='Ketik dan tekan cari...' class='form-control' value='".(isset($keyword) ? htmlspecialchars($keyword, ENT_QUOTES) : '')."' />".
+      " <input class='btn bg-olive margin' type=submit value='   Cari   ' name=Go></td> </tr>
+      </table></form>";
 		  	$baris=mysqli_num_rows($tampil);
-	if ($_POST[Go]){
-			$numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM basis_pengetahuan b,penyakit p where b.kode_penyakit=p.kode_penyakit AND p.nama_penyakit like '%$_POST[keyword]%'"));
+	if (isset($_POST['Go'])){
+			$numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM basis_pengetahuan b,penyakit p where b.kode_penyakit=p.kode_penyakit AND p.nama_penyakit like '%" . $_POST['keyword'] . "%'"));
 			if ($numrows > 0){
 				echo "<div class='alert alert-success alert-dismissible'>
                 <h4><i class='icon fa fa-check'></i> Sukses!</h4>

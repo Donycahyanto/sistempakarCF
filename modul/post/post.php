@@ -20,26 +20,35 @@
       }
       return (true);
     }
-    -- ></script>
+</script>
 <?php
 include "config/fungsi_alert.php";
 $aksi = "modul/post/aksi_post.php";
-switch ($_GET[act]) {
+
+// pastikan $keyword terdefinisi dan aman
+$keyword = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['keyword'])) {
+    $keyword = trim($_POST['keyword']);
+}
+
+switch ($_GET['act'] ?? '') {
     // Tampil post
     default:
-        $offset = $_GET['offset'];
+        $offset = $_GET['offset'] ?? 0;
         //jumlah data yang ditampilkan perpage
         $limit = 15;
         if (empty($offset)) {
             $offset = 0;
         }
         $tampil = mysqli_query($conn,"SELECT * FROM post ORDER BY kode_post");
-        echo "<form method=POST action='?module=post' name=text_form onsubmit='return Blank_TextField_Validator_Cari()'>
+        echo "<form method='POST' action='?module=post' name='text_form' onsubmit='return Blank_TextField_Validator_Cari()'>
           <br><br><table class='table table-bordered'>
-		  <tr><td><input class='btn bg-olive margin' type=button name=tambah value='Tambah Post' onclick=\"window.location.href='post/tambahpost';\"><input type=text name='keyword' style='margin-left: 10px;' placeholder='Ketik dan tekan cari...' class='form-control' value='$_POST[keyword]' /> <input class='btn bg-olive margin' type=submit value='   Cari   ' name=Go></td> </tr>
+          <tr><td><input class='btn bg-olive margin' type='button' name='tambah' value='Tambah Post' onclick=\"window.location.href='post/tambahpost';\">
+          <input type='text' name='keyword' style='margin-left: 10px;' placeholder='Ketik dan tekan cari...' class='form-control' value='".htmlspecialchars($keyword, ENT_QUOTES)."' />
+          <input class='btn bg-olive margin' type='submit' value='   Cari   ' name='Go'></td> </tr>
           </table></form>";
         $baris = mysqli_num_rows($tampil);
-        if ($_POST[Go]) {
+        if (isset($_POST['Go'])){
             $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM post where nama_post like '%$_POST[keyword]%'"));
             if ($numrows > 0) {
                 echo "<div class='alert alert-success alert-dismissible'>
@@ -62,17 +71,15 @@ switch ($_GET[act]) {
                 $no = 1;
                 $counter = 1;
                 while ($r = mysqli_fetch_array($hasil)) {
-                    if ($counter % 2 == 0)
-                        $warna = "dark";
-                    else
-                        $warna = "light";
+                    // pastikan $warna selalu terdefinisi
+                    $warna = ($counter % 2 == 0) ? "dark" : "light";
                     echo "<tr class='" . $warna . "'>
-			 <td align=center>$no</td>
-			 <td>$r[nama_post]</td>
-			 <td>$r[det_post]</td>
-			 <td>$r[srn_post]</td>
-			 <td align=center><a type='button' class='btn btn-success margin' href=post/editpost/$r[kode_post]><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubahx </a> &nbsp;
-	          <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=post&act=hapus&id=$r[kode_post]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\"> <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
+             <td align=center>$no</td>
+             <td>$r[nama_post]</td>
+             <td>$r[det_post]</td>
+             <td>$r[srn_post]</td>
+             <td align=center><a type='button' class='btn btn-success margin' href=post/editpost/$r[kode_post]><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubahx </a> &nbsp;
+              <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=post&act=hapus&id=$r[kode_post]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\"> <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
              </td></tr>";
                     $no++;
                     $counter++;
@@ -105,29 +112,27 @@ switch ($_GET[act]) {
                 $no = 1 + $offset;
                 $counter = 1;
                 while ($r = mysqli_fetch_array($hasil)) {
-                    if ($counter % 2 == 0)
-                        $warna = "dark";
-					if (strlen($r[det_post]) > 150)
-					{
-						$maxLength = 140;
-						$r[det_post] = substr($r[det_post], 0, $maxLength);
-						}
-						if (strlen($r[srn_post]) > 150)
-					{
-						$maxLength = 140;
-						$r[srn_post] = substr($r[srn_post], 0, $maxLength);
-						}
-                    else
-                        $warna = "light";
+                    // pastikan $warna selalu terdefinisi
+                    $warna = ($counter % 2 == 0) ? "dark" : "light";
+
+                    if (strlen($r['det_post']) > 150) {
+                        $maxLength = 140;
+                        $r['det_post'] = substr($r['det_post'], 0, $maxLength);
+                    }
+                    if (strlen($r['srn_post']) > 150) {
+                        $maxLength = 140;
+                        $r['srn_post'] = substr($r['srn_post'], 0, $maxLength);
+                    }
+
                     echo "<tr class='" . $warna . "'>
-			 <td align=center>$no</td>
-			 <td>$r[nama_post]</td>
-			 <td>$r[det_post]</td>
-			 <td>$r[srn_post]</td>
-			 <td align=center>
-			 <a type='button' class='btn btn-success margin' href=post/editpost/$r[kode_post]><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
-	          <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=post&act=hapus&id=$r[kode_post]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\">
-			  <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
+             <td align=center>$no</td>
+             <td>$r[nama_post]</td>
+             <td>$r[det_post]</td>
+             <td>$r[srn_post]</td>
+             <td align=center>
+             <a type='button' class='btn btn-success margin' href=post/editpost/$r[kode_post]><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
+              <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=post&act=hapus&id=$r[kode_post]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\">
+              <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
              </td></tr>";
                     $no++;
                     $counter++;
@@ -187,24 +192,25 @@ switch ($_GET[act]) {
         break;
 
     case "editpost":
-        $edit = mysqli_query($conn,"SELECT * FROM post WHERE kode_post='$_GET[id]'");
+        $id = isset($_GET['id']) ? mysqli_real_escape_string($conn, $_GET['id']) : '';
+        $edit = mysqli_query($conn,"SELECT * FROM post WHERE kode_post='$id'");
         $r = mysqli_fetch_array($edit);
-        if ($r[gambar]) {
-            $gambar = 'gambar/' . $r[gambar];
+        if (!empty($r['gambar'])) {
+            $gambar = 'gambar/' . $r['gambar'];
         } else {
             $gambar = 'gambar/noimage.png';
         }
 
-        echo "<form name=text_form method=POST action='$aksi?module=post&act=update' onsubmit='return Blank_TextField_Validator()' enctype='multipart/form-data'>
-          <input type=hidden name=id value='$r[kode_post]'>
+        echo "<form name='text_form' method='POST' action='".$aksi."?module=post&act=update' onsubmit='return Blank_TextField_Validator()' enctype='multipart/form-data'>
+          <input type='hidden' name='id' value='".htmlspecialchars($r['kode_post'], ENT_QUOTES)."'>
           <br><br><table class='table table-bordered'>
-		  <tr><td width=120>Nama Post</td><td><input autocomplete='off' type=text class='form-control' name='nama_post' size=30 value=\"$r[nama_post]\"></td></tr>
-		  <tr><td width=120>Detail Post</td><td><textarea id='editor1' rows='4' cols='50' type=text class='form-control' name='det_post'>$r[det_post]</textarea></td></tr>
-		  <tr><td width=120>Saran Post</td><td><textarea id='editor2' rows='4' cols='50' type=text class='form-control' name='srn_post'>$r[srn_post]</textarea></td></tr>
-          <tr><td width=120>Gambar Post</td><td>Upload Gambar (Ukuran Maks = 1 MB) : <input id='upload' type='file' class='form-control' name='gambar' required /></td></tr>
-          <tr><td></td><td><img id='preview' src='$gambar' width=200></td></tr>
-          <tr><td></td><td><input class='btn btn-success' type=submit name=submit value='Simpan' >
-		  <input class='btn btn-danger' type=button name=batal value='Batal' onclick=\"window.location.href='?module=post';\"></td></tr>
+          <tr><td width=120>Nama Post</td><td><input autocomplete='off' type='text' class='form-control' name='nama_post' size=30 value=\"".htmlspecialchars($r['nama_post'], ENT_QUOTES)."\"></td></tr>
+          <tr><td width=120>Detail Post</td><td><textarea id='editor1' rows='4' cols='50' class='form-control' name='det_post'>".htmlspecialchars($r['det_post'], ENT_QUOTES)."</textarea></td></tr>
+          <tr><td width=120>Saran Post</td><td><textarea id='editor2' rows='4' cols='50' class='form-control' name='srn_post'>".htmlspecialchars($r['srn_post'], ENT_QUOTES)."</textarea></td></tr>
+          <tr><td width=120>Gambar Post</td><td>Upload Gambar (Ukuran Maks = 1 MB) : <input id='upload' type='file' class='form-control' name='gambar' /></td></tr>
+          <tr><td></td><td><img id='preview' src='".htmlspecialchars($gambar, ENT_QUOTES)."' width=200></td></tr>
+          <tr><td></td><td><input class='btn btn-success' type='submit' name='submit' value='Simpan' >
+          <input class='btn btn-danger' type='button' name='batal' value='Batal' onclick=\"window.location.href='?module=post';\"></td></tr>
           </table></form>";
         break;
 }
