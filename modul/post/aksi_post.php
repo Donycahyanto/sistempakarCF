@@ -3,8 +3,8 @@
 session_start();
 include "../../config/koneksi.php";
 
-$module = $_GET[module];
-$act = $_GET[act];
+$module = $_GET['module'] ?? '';
+$act = $_GET['act'] ?? '';
 
 // Hapus post
 if ($module == 'post' AND $act == 'hapus') {
@@ -29,9 +29,9 @@ elseif ($module == 'post' AND $act == 'input') {
 
 // Update post
 elseif ($module == 'post' AND $act == 'update') {
-    $nama_post = $_POST[nama_post];
-    $det_post = $_POST[det_post];
-    $srn_post = $_POST[srn_post];
+    $nama_post = $_POST['nama_post'];
+    $det_post = $_POST['det_post'];
+    $srn_post = $_POST['srn_post'];
 
     $fileName = $_FILES['gambar']['name'];
     if ($fileName){
