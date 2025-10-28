@@ -20,6 +20,9 @@ switch ($_GET['act'] ?? '') {
         }
 
         $sqlpkt = mysqli_query($conn,"SELECT * FROM penyakit order by kode_penyakit+0");
+        $arpkt = array(); // initialize to avoid undefined variable
+        $ardpkt = array();
+        $arspkt = array();
         while ($rpkt = mysqli_fetch_array($sqlpkt)) {
             $arpkt[$rpkt['kode_penyakit']] = $rpkt['nama_penyakit'];
             $ardpkt[$rpkt['kode_penyakit']] = $rpkt['det_penyakit'];
@@ -51,14 +54,15 @@ switch ($_GET['act'] ?? '') {
                     $warna = "dark";
                 else
                     $warna = "light";
+                $penyakit_name = isset($arpkt[$r['hasil_id']]) ? $arpkt[$r['hasil_id']] : 'Unknown Penyakit';
                 echo "<tr class='" . $warna . "'>
-			 <td align=center>$no</td>
-			 <td>$r[tanggal]</td>
-			 <td>" . $arpkt[$r['hasil_id']] . "</td>
-			 <td><span class='label label-default'>" . $r['hasil_nilai'] . "</span></td>
-			 <td align=center>
-			 <a type='button' class='btn btn-default btn-xs' target='_blank' href='riwayat-detail/" . $r['id_hasil'] . "'><i class='fa fa-eye' aria-hidden='true'></i> Detail </a> &nbsp;
-	         </td></tr>";
+             <td align=center>$no</td>
+             <td>$r[tanggal]</td>
+             <td>" . $penyakit_name . "</td>
+             <td><span class='label label-default'>" . $r['hasil_nilai'] . "</span></td>
+             <td align=center>
+             <a type='button' class='btn btn-default btn-xs' target='_blank' href='riwayat-detail/" . $r['id_hasil'] . "'><i class='fa fa-eye' aria-hidden='true'></i> Detail </a> &nbsp;
+             </td></tr>";
                 $no++;
                 $counter++;
             }
@@ -138,9 +142,11 @@ switch ($_GET['act'] ?? '') {
 //$arr[] = array();
 
 $hasilg = mysqli_query($conn,"SELECT hasil_id, count('hasil_id') jlh_id FROM hasil group by hasil_id ORDER BY jlh_id desc");
+$arr = array(); // initialize array for chart data
 while ($rg = mysqli_fetch_array($hasilg)) {
   if ($rg['hasil_id'] > 0) {
-    $arr[] = array('label' => '&nbsp;' . $arpkt[$rg['hasil_id']], 'data' => array(array('Penyakit ' . $rg['hasil_id'], $rg['jlh_id'])));
+    $label = isset($arpkt[$rg['hasil_id']]) ? '&nbsp;' . $arpkt[$rg['hasil_id']] : '&nbsp;Unknown Penyakit';
+    $arr[] = array('label' => $label, 'data' => array(array('Penyakit ' . $rg['hasil_id'], $rg['jlh_id'])));
   }
 }
 ?>

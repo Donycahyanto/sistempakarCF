@@ -16,13 +16,13 @@ if (isset($_SESSION['username']) && isset($_SESSION['password'])) {
                         <td><input class='form-control' autocomplete='off'
                             placeholder='Ketik password baru...'
                             type='password' name='newPass1' 
-                            pattern='.{8,}' title='Minimal 8 karakter'
+                            pattern='.{5,}' title='Minimal 5 karakter'
                             required /></td></tr>
                     <tr><td>Masukkan kembali password baru</td>
                         <td><input class='form-control' autocomplete='off'
                             placeholder='Ulangi password baru...'
                             type='password' name='newPass2'
-                            pattern='.{8,}' title='Minimal 8 karakter'
+                            pattern='.{5,}' title='Minimal 5 karakter'
                             required /></td></tr>
                     <tr><td></td><td>
                         <input class='btn btn-success' type='submit' 
@@ -54,26 +54,27 @@ if (isset($_SESSION['username']) && isset($_SESSION['password'])) {
             // Verifikasi password lama
             if ($data['password'] === md5($_POST['oldPass'])) { // TODO: Ganti ke password_verify
                 if ($_POST['newPass1'] === $_POST['newPass2']) {
-                    if (strlen($_POST['newPass1']) < 8) {
-                        echo "<h2>Password minimal 8 karakter</h2>";
+                    if (strlen($_POST['newPass1']) < 5) {
+                        echo "<h2>Password minimal 5 karakter</h2>";
                         break;
                     }
 
                     // Update password
-                    $newPass = md5($_POST['newPass1']); // TODO: Ganti ke password_hash
+                    $newPass = md5($_POST['newPass1']); // tetap menggunakan md5
                     $stmt = mysqli_prepare($conn, "UPDATE admin SET password = ? WHERE username = ?");
                     mysqli_stmt_bind_param($stmt, "ss", $newPass, $_SESSION['username']);
                     
                     if (mysqli_stmt_execute($stmt)) {
-                        echo "<h2>Password berhasil diubah</h2>";
+                        // pop-up saat berhasil lalu kembali ke form password
+                        echo "<script>alert('Password berhasil diubah'); window.location='?module=password';</script>";
                     } else {
                         echo "<h2>Gagal mengubah password</h2>";
                     }
                 } else {
-                    echo "<h2>Password baru tidak sama</h2>";
+                    echo "<script>alert('Password baru tidak sama'); window.location='?module=password';</script>";
                 }
             } else {
-                echo "<h2>Password lama salah</h2>";
+                echo "<script>alert('Password lama salah'); window.location='?module=password';</script>";
             }
             break;
     }
