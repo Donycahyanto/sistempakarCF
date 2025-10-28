@@ -32,6 +32,10 @@ return (true);
 <?php
 include "config/fungsi_alert.php";
 $aksi="modul/gejala/aksi_gejala.php";
+
+// pastikan $offset selalu terdefinisi (hindari Notice)
+$offset = intval($_GET['offset'] ?? 0);
+
 switch ($_GET['act'] ?? '') {
 	// Tampil gejala
   default:
@@ -51,7 +55,7 @@ echo "<form method=POST action='?module=gejala' name=text_form onsubmit='return 
       <br><br><table class='table table-bordered'>
       <tr><td>
         <input class='btn bg-olive margin' type=button name=tambah value='Tambah Gejala' 
-               onclick=\"window.location.href='gejala/tambahgejala';\">
+               onclick=\"window.location.href='?module=gejala&act=tambahgejala&offset=".$offset."';\">
         <input type=text name='keyword' style='margin-left: 10px;' 
                placeholder='Ketik dan tekan cari...' class='form-control' 
                value='" . $keyword . "' /> 
@@ -84,16 +88,21 @@ $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_g
 	$no = 1;
 	$counter = 1;
     while ($r=mysqli_fetch_array($hasil)){
-	if ($counter % 2 == 0) $warna = "dark";
-	else $warna = "light";
+        if ($counter % 2 == 0) $warna = "dark";
+        else $warna = "light";
+
+        // buat URL hapus yang aman untuk attribute HTML
+        $deleteUrl = htmlspecialchars($aksi . "?module=gejala&act=hapus&id=" . urlencode($r['kode_gejala']) . "&offset=" . $offset, ENT_QUOTES);
+
        echo "<tr class='".$warna."'>
-			 <td align=center>$no</td>
-			 <td>$r[nama_gejala]</td>
-			 <td align=center><a type='button' class='btn btn-success margin' href=gejala/editgejala/$r[kode_gejala]><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
-	          <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=gejala&act=hapus&id=$r[kode_gejala]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
+             <td align=center>$no</td>
+             <td>".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."</td>
+             <td align=center>
+               <a class='btn btn-success margin' href='?module=gejala&act=editgejala&id=".urlencode($r['kode_gejala'])."&offset=".$offset."'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
+               <a class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','".$deleteUrl."','','','','u','n','Self','Self')\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
              </td></tr>";
       $no++;
-	  $counter++;
+      $counter++;
     }
     echo "</tbody></table>";
 			}
@@ -116,62 +125,55 @@ $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_g
           </thead>
 		  <tbody>
 		  "; 
-	$hasil = mysqli_query($conn,"SELECT * FROM gejala ORDER BY kode_gejala limit $offset,$limit");
-	$no = 1;
-	$no = 1 + $offset;
-	$counter = 1;
-    while ($r=mysqli_fetch_array($hasil)){
-	if ($counter % 2 == 0) $warna = "dark";
-	else $warna = "light";
-       echo "<tr class='".$warna."'>
-			 <td align=center>$no</td>
-			 <td>$r[nama_gejala]</td>
-			 <td align=center>
-			 <a type='button' class='btn btn-success margin' href=gejala/editgejala/$r[kode_gejala]><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
-	          <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=gejala&act=hapus&id=$r[kode_gejala]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
+	$hasil = mysqli_query($conn,"SELECT * FROM gejala ORDER BY kode_gejala LIMIT $offset,$limit");
+    $no = 1 + $offset;
+    $counter = 1;
+    while ($r = mysqli_fetch_assoc($hasil)) {
+        $warna = ($counter % 2 == 0) ? "dark" : "light";
+
+        // buat URL hapus yang aman untuk attribute HTML
+        $deleteUrl = htmlspecialchars($aksi . "?module=gejala&act=hapus&id=" . urlencode($r['kode_gejala']) . "&offset=" . $offset, ENT_QUOTES);
+
+        echo "<tr class='".$warna."'>
+             <td align='center'>".$no."</td>
+             <td>".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."</td>
+             <td align='center'>
+               <a class='btn btn-success margin' href='?module=gejala&act=editgejala&id=".urlencode($r['kode_gejala'])."&offset=".$offset."'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
+               <a class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','".$deleteUrl."','','','','u','n','Self','Self')\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
              </td></tr>";
-      $no++;
-	  $counter++;
+        $no++;
+        $counter++;
     }
     echo "</tbody></table>";
-	echo "<div class=paging>";
+    echo "<div class=paging>";
 
-	if ($offset!=0) {
-		$prevoffset = $offset-10;
-		echo "<span class=prevnext> <a href='index.php?module=gejala&offset=$prevoffset'>Back</a></span>";
-	}
-	else {
-		echo "<span class=disabled>Back</span>";//cetak halaman tanpa link
-	}
-	//hitung jumlah halaman
-	$halaman = intval($baris/$limit);//Pembulatan
+    if ($offset != 0) {
+        $prevoffset = max(0, $offset - $limit);
+        echo "<span class=prevnext> <a href='index.php?module=gejala&offset=$prevoffset'>Back</a></span>";
+    } else {
+        echo "<span class=disabled>Back</span>";
+    }
+    // hitung jumlah halaman
+    $halaman = intval($baris / $limit);
+    if ($baris % $limit) $halaman++;
+    for ($i = 1; $i <= $halaman; $i++) {
+        $newoffset = $limit * ($i - 1);
+        if ($offset != $newoffset) {
+            echo "<a href='index.php?module=gejala&offset=$newoffset'>$i</a>";
+        } else {
+            echo "<span class=current>" . $i . "</span>";
+        }
+    }
 
-	if ($baris%$limit){
-		$halaman++;
-	}
-	for($i=1;$i<=$halaman;$i++){
-		$newoffset = $limit * ($i-1);
-		if($offset!=$newoffset){
-			echo "<a href=index.php?module=gejala&offset=$newoffset>$i</a>";
-			//cetak halaman
-		}
-		else {
-			echo "<span class=current>".$i."</span>";//cetak halaman tanpa link
-		}
-	}
+    // cek halaman akhir
+    if (!(($offset / $limit) + 1 == $halaman) && $halaman != 1) {
+        $newoffset = $offset + $limit;
+        echo "<span class=prevnext><a href='index.php?module=gejala&offset=$newoffset'>Next</a></span>";
+    } else {
+        echo "<span class=disabled>Next</span>";
+    }
 
-	//cek halaman akhir
-	if(!(($offset/$limit)+1==$halaman) && $halaman !=1){
-
-		//jika bukan halaman terakhir maka berikan next
-		$newoffset = $offset + $limit;
-		echo "<span class=prevnext><a href=index.php?module=gejala&offset=$newoffset>Next</a>";
-	}
-	else {
-		echo "<span class=disabled>Next</span>";//cetak halaman tanpa link
-	}
-	
-	echo "</div>";
+    echo "</div>";
 	}else{
 	echo "<br><b>Data Kosong !</b>";
 	}
@@ -180,6 +182,7 @@ $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_g
   
   case "tambahgejala":
     echo "<form name=text_form method=POST action='$aksi?module=gejala&act=input' onsubmit='return Blank_TextField_Validator()'>
+          <input type='hidden' name='offset' value='".intval($offset)."'>
           <br><br><table class='table table-bordered'>
 		  <tr><td width=120>Nama Gejala</td><td><input type=text autocomplete='off' placeholder='Masukkan gejala baru...' class='form-control' name='nama_gejala' size=30></td></tr>
 		  <tr><td></td><td><input class='btn btn-success' type=submit name=submit value='Simpan' >
@@ -188,15 +191,17 @@ $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_g
      break;
     
   case "editgejala":
-    $edit=mysqli_query($conn,"SELECT * FROM gejala WHERE kode_gejala='$_GET[id]'");
+    $edit=mysqli_query($conn,"SELECT * FROM gejala WHERE kode_gejala='".mysqli_real_escape_string($conn, $_GET['id'])."'");
     $r=mysqli_fetch_array($edit);
-	
+    $curOffset = intval($_GET['offset'] ?? 0);
+    
     echo "<form name=text_form method=POST action='$aksi?module=gejala&act=update' onsubmit='return Blank_TextField_Validator()'>
-          <input type=hidden name=id value='$r[kode_gejala]'>
+          <input type=hidden name=id value='".htmlspecialchars($r['kode_gejala'], ENT_QUOTES)."'>
+          <input type=hidden name=offset value='". $curOffset ."'>
           <br><br><table class='table table-bordered'>
-		  <tr><td width=120>Nama Gejala</td><td><input autocomplete='off' type=text class='form-control' name='nama_gejala' size=30 value=\"$r[nama_gejala]\"></td></tr>
+          <tr><td width=120>Nama Gejala</td><td><input autocomplete='off' type=text class='form-control' name='nama_gejala' size=30 value=\"".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."\"></td></tr>
           <tr><td></td><td><input class='btn btn-success' type=submit name=submit value='Simpan' >
-		  <input class='btn btn-danger' type=button value='Batal' onclick=\"window.location.href='?module=gejala';\"></td></tr>
+          <input class='btn btn-danger' type=button value='Batal' onclick=\"window.location.href='?module=gejala&offset=".$curOffset."';\"></td></tr>
           </table></form>";
     break;  
 }

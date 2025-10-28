@@ -40,9 +40,9 @@ $act = $_GET['act'] ?? '';
 
 // Update penyakit
   elseif ($module == 'penyakit' AND $act == 'update') {
-    $nama_penyakit = $_POST[nama_penyakit];
-    $det_penyakit = $_POST[det_penyakit];
-    $srn_penyakit = $_POST[srn_penyakit];
+    $nama_penyakit = $_POST['nama_penyakit'];
+    $det_penyakit = $_POST['det_penyakit'];
+    $srn_penyakit = $_POST['srn_penyakit'];
 
     $fileName = $_FILES['gambar']['name'];
     if ($fileName) {

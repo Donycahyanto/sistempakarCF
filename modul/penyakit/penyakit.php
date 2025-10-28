@@ -190,8 +190,8 @@ if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
     case "editpenyakit":
       $edit = mysqli_query($conn,"SELECT * FROM penyakit WHERE kode_penyakit='$_GET[id]'");
       $r = mysqli_fetch_array($edit);
-      if ($r[gambar]) {
-        $gambar = 'gambar/penyakit/' . $r[gambar];
+      if ($r['gambar']) {
+        $gambar = 'gambar/penyakit/' . $r['gambar'];
       } else {
         $gambar = 'gambar/noimage.png';
       }

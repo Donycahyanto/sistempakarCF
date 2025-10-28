@@ -90,11 +90,6 @@ $module = isset($_GET['module']) ? $_GET['module'] : 'beranda';
                           <small>Pakar dari Chirexs 1.0</small>
                         </p>
                       </li>
-                      <!-- Menu Body -->
-                      <li class="user-body">
-                        <a href="?module=bantuan"<?php if ($module == "bantuan") echo ' class="active"'; ?>><i class="fa fa-question-circle"></i> <span>Bantuan</span></a>
-                        <!-- /.row -->
-                      </li>
                       <!-- Menu Footer-->
                       <li class="user-footer"> 
                         <div class="pull-left">
@@ -106,8 +101,8 @@ $module = isset($_GET['module']) ? $_GET['module'] : 'beranda';
                       </li>
                     </ul>
                   </li>
-              <?php } else { ?> <li><a <?php if ($module == "bantuan") echo 'class="active"'; ?> id="bantu" href="bantuan" data-toggle="tooltip" data-placement="bottom" data-delay='{"show":"300", "hide":"500"}' title="Silahkan klik link berikut, jika anda masih kurang paham tentang penggunaan aplikasi ini !"><i class="fa fa-question-circle"></i> <span>Bantuan</span></a></li>
-				  <li class="dropdown messages-menu">
+              <?php } else { ?>
+                  <li class="dropdown messages-menu">
                     <a <?php if ($module == "formlogin") echo 'class="active"'; ?> href="formlogin"><i class="fa fa-sign-in"></i> <span>Login</span></a>
                   </li>
               <?php } ?>

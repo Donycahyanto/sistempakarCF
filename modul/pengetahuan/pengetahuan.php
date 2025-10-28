@@ -53,13 +53,21 @@ $aksi="modul/pengetahuan/aksi_pengetahuan.php";
 switch ($_GET['act'] ?? '') {
 	// Tampil pengetahuan
   default:
-  $offset = $_GET['offset'] ?? 0;
-	//jumlah data yang ditampilkan perpage
-	$limit = 15;
-	if (empty ($offset)) {
-		$offset = 0;
-	}
-  $tampil=mysqli_query($conn,"SELECT * FROM basis_pengetahuan ORDER BY kode_pengetahuan");
+    $offset = max(0, intval($_GET['offset'] ?? 0)); // Ensure non-negative offset
+    //jumlah data yang ditampilkan perpage
+    $limit = 15;
+    
+    $tampil = mysqli_query($conn,"SELECT * FROM basis_pengetahuan ORDER BY kode_pengetahuan");
+    $baris = mysqli_num_rows($tampil);
+
+    // Calculate pagination values
+    $halaman = ceil($baris/$limit); // Use ceil instead of intval
+    if ($offset >= $baris) {
+        $offset = max(0, (($halaman - 1) * $limit));
+    }
+
+    // Main query with validated offset
+    $hasil = mysqli_query($conn,"SELECT * FROM basis_pengetahuan ORDER BY kode_pengetahuan LIMIT $offset,$limit");
 	echo "<form method=POST action='?module=pengetahuan' name=text_form onsubmit='return Blank_TextField_Validator_Cari()'>
       <br><br><table class='table table-bordered'>
       <tr><td><input class='btn bg-olive margin' type=button name=tambah value='Tambah Basis Pengetahuan' onclick=\"window.location.href='?module=pengetahuan&act=tambahpengetahuan';\">".
@@ -91,21 +99,40 @@ switch ($_GET['act'] ?? '') {
 	$no = 1;
 	$counter = 1;
     while ($r=mysqli_fetch_array($hasil)){
-	if ($counter % 2 == 0) $warna = "dark";
-	else $warna = "light";
-	$sql = mysqli_query($conn,"SELECT * FROM gejala where kode_gejala = '$r[kode_gejala]'");
-	$rgejala=mysqli_fetch_array($sql);
-       echo "<tr class='".$warna."'>
-			 <td align=center>$no</td>
-			 <td>$r[nama_penyakit]</td>
-			 <td>$rgejala[nama_gejala]</td>
-			 <td align=center>$r[mb]</td>
-			 <td align=center>$r[md]</td>
-			 <td align=center><a type='button' class='btn btn-success margin' href=pengetahuan/editpengetahuan/$r[kode_pengetahuan]><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
-	          <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=pengetahuan&act=hapus&id=$r[kode_pengetahuan]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
-             </td></tr>";
-      $no++;
-	  $counter++;
+        if ($counter % 2 == 0) $warna = "dark";
+        else $warna = "light";
+
+        // safe values
+        $kode_pengetahuan = $r['kode_pengetahuan'] ?? '';
+        $kode_penyakit   = $r['kode_penyakit'] ?? '';
+        $kode_gejala     = $r['kode_gejala'] ?? '';
+
+        // lookups
+        $sql = mysqli_query($conn,"SELECT nama_gejala FROM gejala WHERE kode_gejala = '" . mysqli_real_escape_string($conn, $kode_gejala) . "'");
+        $rgejala = mysqli_fetch_assoc($sql);
+        $sql2 = mysqli_query($conn,"SELECT nama_penyakit FROM penyakit WHERE kode_penyakit = '" . mysqli_real_escape_string($conn, $kode_penyakit) . "'");
+        $rpenyakit = mysqli_fetch_assoc($sql2);
+
+        $nama_penyakit = $rpenyakit['nama_penyakit'] ?? 'Data Penyakit Tidak Ditemukan';
+        $nama_gejala   = $rgejala['nama_gejala'] ?? 'Data Gejala Tidak Ditemukan';
+
+        // build URLs that include current offset
+        $editUrl   = "?module=pengetahuan&act=editpengetahuan&id=" . urlencode($kode_pengetahuan) . "&offset=" . intval($offset);
+        $deleteUrl = htmlspecialchars($aksi . "?module=pengetahuan&act=hapus&id=" . urlencode($kode_pengetahuan) . "&offset=" . intval($offset), ENT_QUOTES);
+
+        echo "<tr class='".$warna."'>
+            <td align='center'>".($no)."</td>
+            <td>".htmlspecialchars($nama_penyakit, ENT_QUOTES)."</td>
+            <td>".htmlspecialchars($nama_gejala, ENT_QUOTES)."</td>
+            <td align='center'>".htmlspecialchars($r['mb'] ?? '', ENT_QUOTES)."</td>
+            <td align='center'>".htmlspecialchars($r['md'] ?? '', ENT_QUOTES)."</td>
+            <td align='center'>
+                <a class='btn btn-success margin' href='". $editUrl ."'><i class='fa fa-pencil-square-o'></i> Ubah</a> &nbsp;
+                <a class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','".$deleteUrl."','','','','u','n','Self','Self')\"><i class='fa fa-trash-o'></i> Hapus</a>
+            </td>
+        </tr>";
+        $no++;
+        $counter++;
     }
     echo "</tbody></table>";
 			}
@@ -139,33 +166,38 @@ switch ($_GET['act'] ?? '') {
 	if ($counter % 2 == 0) $warna = "dark";
 	else $warna = "light";
 	$sql = mysqli_query($conn,"SELECT * FROM gejala where kode_gejala = '$r[kode_gejala]'");
-	$rgejala=mysqli_fetch_array($sql);
-	$sql2 = mysqli_query($conn,"SELECT * FROM penyakit where kode_penyakit = '$r[kode_penyakit]'");
-	$rpenyakit=mysqli_fetch_array($sql2);
-       echo "<tr class='".$warna."'>
-			 <td align=center>$no</td>
-			 <td>$rpenyakit[nama_penyakit]</td>
-			 <td>$rgejala[nama_gejala]</td>
-			 <td align=center>$r[mb]</td>
-			 <td align=center>$r[md]</td>
-			 <td align=center>
-			 <a type='button' class='btn btn-success margin' href=pengetahuan/editpengetahuan/$r[kode_pengetahuan]><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
-	          <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=pengetahuan&act=hapus&id=$r[kode_pengetahuan]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\">
-			  <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
-             </td></tr>";
+$rgejala=mysqli_fetch_array($sql); // Baris 162 - Variabel ini mungkin null
+// Ambil data penyakit
+$sql2 = mysqli_query($conn,"SELECT * FROM penyakit where kode_penyakit = '$r[kode_penyakit]'");
+$rpenyakit=mysqli_fetch_array($sql2); // Variabel ini mungkin null
+
+// Lakukan pengecekan sebelum mencetak nilai array
+$nama_penyakit = isset($rpenyakit['nama_penyakit']) ? $rpenyakit['nama_penyakit'] : 'Data Penyakit Tidak Ditemukan';
+$nama_gejala = isset($rgejala['nama_gejala']) ? $rgejala['nama_gejala'] : 'Data Gejala Tidak Ditemukan';
+
+echo "<tr class='".$warna."'>
+    <td align=center>$no</td>
+    <td>$nama_penyakit</td>
+    <td>$nama_gejala</td>
+    <td align=center>$r[mb]</td>
+    <td align=center>$r[md]</td>
+    <td align=center>
+    <a class='btn btn-success margin' href='?module=pengetahuan&act=editpengetahuan&id=".urlencode($r['kode_pengetahuan'])."&offset=".intval($offset)."'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
+    <a class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','".htmlspecialchars($aksi.'?module=pengetahuan&act=hapus&id='.urlencode($r['kode_pengetahuan']).'&offset='.intval($offset), ENT_QUOTES)."','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\">
+    <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
+    </td></tr>";
       $no++;
 	  $counter++;
     }
     echo "</tbody></table>";
 	echo "<div class=paging>";
 
-	if ($offset!=0) {
-		$prevoffset = $offset-10;
-		echo "<span class=prevnext> <a href=index.php?module=pengetahuan&offset=$prevoffset>Back</a></span>";
-	}
-	else {
-		echo "<span class=disabled>Back</span>";//cetak halaman tanpa link
-	}
+	if ($offset > 0) {
+        $prevoffset = max(0, $offset - $limit); // Use $limit instead of hardcoded 10
+        echo "<span class=prevnext><a href=index.php?module=pengetahuan&offset=$prevoffset>Back</a></span>";
+    } else {
+        echo "<span class=disabled>Back</span>";
+    }
 	//hitung jumlah halaman
 	$halaman = intval($baris/$limit);//Pembulatan
 
@@ -218,6 +250,7 @@ switch ($_GET['act'] ?? '') {
 				Dimana nilai kepastian anda terhadap gejala Mencret keputih-putihan untuk penyakit Berak Kapur adalah <b>0.6 (Kemungkinan Besar)</b>
               </div>
           <form name=text_form method=POST action='$aksi?module=pengetahuan&act=input' onsubmit='return Blank_TextField_Validator()'>
+<input type='hidden' name='offset' value='".intval($offset)."'>
           <br><br><table class='table table-bordered'>
 		  <tr><td width=120>Penyakit</td><td><select class='form-control' name='kode_penyakit'  id='kode_penyakit'><option value=''>- Pilih Penyakit -</option>";
 		$hasil4 = mysqli_query($conn,"SELECT * FROM penyakit order by nama_penyakit");
@@ -239,33 +272,37 @@ switch ($_GET['act'] ?? '') {
      break;
     
   case "editpengetahuan":
-    $edit=mysqli_query($conn,"SELECT * FROM basis_pengetahuan WHERE kode_pengetahuan='$_GET[id]'");
-    $r=mysqli_fetch_array($edit);
-	
-    echo "<br>
-	<br>
-	<form name=text_form method=POST action='$aksi?module=pengetahuan&act=update' onsubmit='return Blank_TextField_Validator()'>
+    $edit = mysqli_query($conn, "SELECT * FROM basis_pengetahuan WHERE kode_pengetahuan='".mysqli_real_escape_string($conn, $_GET['id'])."'");
+    $r = mysqli_fetch_array($edit);
+    
+    echo "<br><br>
+    <form name=text_form method=POST action='$aksi?module=pengetahuan&act=update' onsubmit='return Blank_TextField_Validator()'>
           <input type=hidden name=id value='$r[kode_pengetahuan]'>
+          <input type=hidden name=offset value='". intval($_GET['offset'] ?? 0) ."'>
           <br><br><table class='table table-bordered'>
-		  <tr><td width=120>Penyakit</td><td><select class='form-control' name='kode_penyakit' id='kode_penyakit'>";
-		$hasil4 = mysqli_query($conn,"SELECT * FROM penyakit order by nama_penyakit");
-		while($r4=mysqli_fetch_array($hasil4)){
-			echo "<option value='$r4[kode_penyakit]'"; if($r[kode_penyakit]==$r4[kode_penyakit]) echo "selected";
-			echo ">$r4[nama_penyakit]</option>";
-		}
-		echo	"</select></td></tr>
-		<tr><td>Gejala</td><td><select class='form-control' name='kode_gejala' id='kode_gejala'>";
-		$hasil4 = mysqli_query($conn,"SELECT * FROM gejala order by nama_gejala");
-		while($r4=mysqli_fetch_array($hasil4)){
-			echo "<option value='$r4[kode_gejala]'"; if($r[kode_gejala]==$r4[kode_gejala]) echo "selected";
-			echo ">$r4[nama_gejala]</option>";
-		}
-		echo	"</select></td></tr>
-		<tr><td>MB</td><td><input autocomplete='off' placeholder='Masukkan MB' type=text class='form-control' name='mb' size=15 value='$r[mb]'></td></tr>
-		<tr><td>MD</td><td><input autocomplete='off' placeholder='Masukkan MD' type=text class='form-control' name='md' size=15 value='$r[md]'></td></tr>
-          <tr><td></td><td><input class='btn btn-success' type=submit name=submit value='Simpan' >
-		  <input class='btn btn-danger' type=button name=batal value='Batal' onclick=\"window.location.href='?module=pengetahuan';\"></td></tr>
-          </table></form>";
+          <tr><td width=120>Penyakit</td><td><select class='form-control' name='kode_penyakit' id='kode_penyakit'>";
+        $hasil4 = mysqli_query($conn,"SELECT * FROM penyakit ORDER BY nama_penyakit");
+        while($r4 = mysqli_fetch_array($hasil4)){
+            echo "<option value='".htmlspecialchars($r4['kode_penyakit'], ENT_QUOTES)."'";
+            if($r['kode_penyakit'] == $r4['kode_penyakit']) echo " selected";
+            echo ">".htmlspecialchars($r4['nama_penyakit'], ENT_QUOTES)."</option>";
+        }
+        echo	"</select></td></tr>
+        <tr><td>Gejala</td><td><select class='form-control' name='kode_gejala' id='kode_gejala'>";
+        $hasil4 = mysqli_query($conn,"SELECT * FROM gejala ORDER BY nama_gejala");
+        while($r4 = mysqli_fetch_array($hasil4)){
+            echo "<option value='".htmlspecialchars($r4['kode_gejala'], ENT_QUOTES)."'";
+            if($r['kode_gejala'] == $r4['kode_gejala']) echo " selected";
+            echo ">".htmlspecialchars($r4['nama_gejala'], ENT_QUOTES)."</option>";
+        }
+        echo "</select></td></tr>
+        <tr><td>MB</td><td><input autocomplete='off' placeholder='Masukkan MB' type=text class='form-control' name='mb' size=15 value='".htmlspecialchars($r['mb'], ENT_QUOTES)."'></td></tr>
+        <tr><td>MD</td><td><input autocomplete='off' placeholder='Masukkan MD' type=text class='form-control' name='md' size=15 value='".htmlspecialchars($r['md'], ENT_QUOTES)."'></td></tr>
+        <tr><td></td><td>
+            <input class='btn btn-success' type=submit name=submit value='Simpan'>
+            <input class='btn btn-danger' type=button name=batal value='Batal' onclick=\"window.location.href='?module=pengetahuan';\">
+        </td></tr>
+        </table></form>";
     break;  
 }
 ?>
