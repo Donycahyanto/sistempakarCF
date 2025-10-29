@@ -39,9 +39,9 @@
       <a class="link dim light-silver"  style="font-size: 40px;"><i class="fa fa-edge" aria-hidden="true"></i></a>
 	  <a class="link dim light-silver"  style="font-size: 40px;"><i class="fa fa-safari" aria-hidden="true"></i></a>
 	  <a class="link dim light-silver"  style="font-size: 40px;"> | </a>
-	       <a class="link dim light-silver"  style="font-size: 40px;"> 	<img src="aset/tentang/amikom.png" alt="Profile headshot" /></a>
+	       <a class="link dim light-silver"  style="font-size: 40px;"> 	<img src="aset/tentang/STMIK WIDURI.png" alt="Profile headshot" /></a>
     </header>
-    <p class="f6 tl lh-copy silver" style="margin: 20px;">Sistem pakar yang mampu mendiagnosa penyakit pada ayam berdasarkan pengetahuan yang diberikan langsung dari pakar/ahlinya dan melalui studi  literatur. Penelitian ini menggunakan metode perhitungan Certainty Factor (CF) dalam menghitung tingkat kepakaran. Data penelitian ini terdiri dari data gejala dan data penyakit ayam, serta data aturan. Sistem pakar pada organisasi ditujukan  untuk penambahan  value, peningkatan produktivitas serta area manajerial yang dapat mengambil kesimpulan dengan cepat.</p>
+    <p class="f6 tl lh-copy silver" style="margin: 20px;">Sistem pakar yang mampu mendiagnosa kerusakan pada komputer berdasarkan pengetahuan yang diberikan langsung dari pakar/ahlinya dan melalui studi  literatur. Penelitian ini menggunakan metode perhitungan Certainty Factor (CF) dalam menghitung tingkat kepakaran. Data penelitian ini terdiri dari data gejala dan data kerusakan komputer, serta data aturan. Sistem pakar pada organisasi ditujukan  untuk penambahan  value, peningkatan produktivitas serta area manajerial yang dapat mengambil kesimpulan dengan cepat.</p>
   </article>
 </div>
 </body>

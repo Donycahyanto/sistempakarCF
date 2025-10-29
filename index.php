@@ -60,9 +60,9 @@ $module = isset($_GET['module']) ? $_GET['module'] : 'beranda';
         <!-- Logo -->
         <a href="./" class="logo">
           <!-- mini logo for sidebar mini 50x50 pixels -->
-          <span class="logo-mini"><b><i class="fa fa-contao" aria-hidden="true"></i>XS</b></span>
+          <span class="logo-mini"><b><i class="fa fa-contao" aria-hidden="true"></i>SP</b></span>
           <!-- logo for regular state and mobile devices -->
-          <span class="logo-lg"><b><i class="fa fa-contao" aria-hidden="true"></i>hirexs 1.0</b></span>
+          <span class="logo-lg"><b><i class="fa fa-contao" aria-hidden="true"></i>Spakar CF</b></span>
         </a>
         <!-- Header Navbar -->
         <nav class="navbar navbar-static-top" role="navigation">
