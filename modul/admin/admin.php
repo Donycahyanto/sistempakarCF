@@ -48,6 +48,8 @@ switch($act){
   default:
   $offset=$_GET['offset'] ?? 0;
   $keyword = $_POST['keyword'] ?? '';
+  $keyword = trim($keyword); // bersihkan spasi
+  $keyword_esc = mysqli_real_escape_string($conn, $keyword); // pastikan terdefinisi dan aman untuk query
   $go_submit = $_POST['Go'] ?? '';
 
 	//jumlah data yang ditampilkan perpage
@@ -71,7 +73,7 @@ switch($act){
                 Admin yang anda cari di temukan.
               </div>";
 				$i = 1;
-	echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0'>
+    echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0'>
           <thead>
             <tr>
               <th>No</th>
@@ -80,10 +82,10 @@ switch($act){
               <th width='21%'>Aksi</th>
             </tr>
           </thead>
-		  <tbody>"; 
-	$hasil = mysqli_query($conn,"SELECT * FROM admin where username like '%$_POST[keyword]%'");
-	$no = 1;
-	$counter = 1;
+          <tbody>"; 
+    $hasil = mysqli_query($conn,"SELECT * FROM admin where username like '%$keyword_esc%'");
+    $no = 1;
+    $counter = 1;
     while ($r=mysqli_fetch_array($hasil)){
 	if ($counter % 2 == 0) $warna = "light";
 	else $warna = "dark";
