@@ -75,20 +75,20 @@
                 </ol>
                 <div class="carousel-inner">
                   <div class="item active">
-                    <img src="aset/banner/ayam.jpg" alt="First slide">
+                    <img src="aset/banner/group.png" alt="First slide">
                     <div class="carousel-caption">
                     </div>
                   </div>
                   <div class="item">
-                    <img src="aset/banner/telur.jpg" alt="Second slide">
+                    <img src="aset/banner/frame.png" alt="Second slide">
                     <div class="carousel-caption">
                     </div>
-                  </div><!--
-                  <div class="item active">
-                    <img src="aset/banner/daging.jpg" alt="Third slide">
+                  </div>
+                  <div class="item">
+                    <img src="aset/banner/framee.png" alt="Third slide">
                     <div class="carousel-caption">
                     </div>
-                  </div>-->
+                  </div>
                 </div> 
                 <a class="left carousel-control" href="#carousel-example-generic" data-slide="prev">
                   <span class="fa fa-angle-left"></span>
