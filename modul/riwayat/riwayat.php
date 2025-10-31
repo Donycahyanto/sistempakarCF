@@ -19,14 +19,14 @@ switch ($_GET['act'] ?? '') {
             $argjl[$rgjl['kode_gejala']] = $rgjl['nama_gejala'];
         }
 
-        $sqlpkt = mysqli_query($conn,"SELECT * FROM penyakit order by kode_penyakit+0");
+        $sqlpkt = mysqli_query($conn,"SELECT * FROM kerusakan order by kode_kerusakan+0");
         $arpkt = array(); // initialize to avoid undefined variable
         $ardpkt = array();
         $arspkt = array();
         while ($rpkt = mysqli_fetch_array($sqlpkt)) {
-            $arpkt[$rpkt['kode_penyakit']] = $rpkt['nama_penyakit'];
-            $ardpkt[$rpkt['kode_penyakit']] = $rpkt['det_penyakit'];
-            $arspkt[$rpkt['kode_penyakit']] = $rpkt['srn_penyakit'];
+            $arpkt[$rpkt['kode_kerusakan']] = $rpkt['nama_kerusakan'];
+            $ardpkt[$rpkt['kode_kerusakan']] = $rpkt['det_kerusakan'];
+            $arspkt[$rpkt['kode_kerusakan']] = $rpkt['srn_kerusakan'];
         }
 
         $tampil = mysqli_query($conn,"SELECT * FROM hasil ORDER BY id_hasil");

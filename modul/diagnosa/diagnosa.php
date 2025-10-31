@@ -28,23 +28,23 @@ switch ($act) {
         $arkondisitext[$rkondisi['id']] = $rkondisi['kondisi'];
       }
 
-      $sqlpkt = mysqli_query($conn, "SELECT * FROM penyakit order by kode_penyakit+0");
+      $sqlpkt = mysqli_query($conn, "SELECT * FROM kerusakan order by kode_kerusakan+0");
       while ($rpkt = mysqli_fetch_array($sqlpkt)) {
-        $arpkt[$rpkt['kode_penyakit']] = $rpkt['nama_penyakit'];
-        $ardpkt[$rpkt['kode_penyakit']] = $rpkt['det_penyakit'];
-        $arspkt[$rpkt['kode_penyakit']] = $rpkt['srn_penyakit'];
-        $argpkt[$rpkt['kode_penyakit']] = $rpkt['gambar'];
+        $arpkt[$rpkt['kode_kerusakan']] = $rpkt['nama_kerusakan'];
+        $ardpkt[$rpkt['kode_kerusakan']] = $rpkt['det_kerusakan'];
+        $arspkt[$rpkt['kode_kerusakan']] = $rpkt['srn_kerusakan'];
+        $argpkt[$rpkt['kode_kerusakan']] = $rpkt['gambar'];
       }
 
       //print_r($arkondisitext);
 // -------- perhitungan certainty factor (CF) ---------
 // --------------------- START ------------------------
-      $sqlpenyakit = mysqli_query($conn, "SELECT * FROM penyakit order by kode_penyakit");
-      $arpenyakit = array();
-      while ($rpenyakit = mysqli_fetch_array($sqlpenyakit)) {
+      $sqlkerusakan = mysqli_query($conn, "SELECT * FROM kerusakan order by kode_kerusakan");
+      $arkerusakan = array();
+      while ($rkerusakan = mysqli_fetch_array($sqlkerusakan)) {
         $cftotal_temp = 0;
         $cf = 0;
-        $sqlgejala = mysqli_query($conn, "SELECT * FROM basis_pengetahuan where kode_penyakit=$rpenyakit[kode_penyakit]");
+        $sqlgejala = mysqli_query($conn, "SELECT * FROM basis_pengetahuan where kode_kerusakan=$rkerusakan[kode_kerusakan]");
         $cflama = 0;
         while ($rgejala = mysqli_fetch_array($sqlgejala)) {
           $arkondisi = explode("_", $_POST['kondisi'][0]);
@@ -68,17 +68,18 @@ switch ($act) {
           }
         }
         if ($cflama > 0) {
-          $arpenyakit += array($rpenyakit['kode_penyakit'] => number_format($cflama, 4));
+          // gunakan kode dari $rkerusakan sebagai key
+          $arkerusakan[$rkerusakan['kode_kerusakan']] = number_format($cflama, 4);
         }
       }
-
-      arsort($arpenyakit);
+      
+      arsort($arkerusakan);
 
       $inpgejala = serialize($argejala);
-      $inppenyakit = serialize($arpenyakit);
+      $inpkerusakan = serialize($arkerusakan);
 
       $np1 = 0;
-      foreach ($arpenyakit as $key1 => $value1) {
+      foreach ($arkerusakan as $key1 => $value1) {
         $np1++;
         $idpkt1[$np1] = $key1;
         $vlpkt1[$np1] = $value1;
@@ -87,14 +88,14 @@ switch ($act) {
       mysqli_query($conn, "INSERT INTO hasil(
                   tanggal,
                   gejala,
-                  penyakit,
+                  kerusakan,
                   hasil_id,
                   hasil_nilai
 				  ) 
 	        VALUES(
                 '$inptanggal',
                 '$inpgejala',
-                '$inppenyakit',
+                '$inpkerusakan',
                 '$idpkt1[1]',
                 '$vlpkt1[1]'
 				)");
@@ -121,19 +122,20 @@ switch ($act) {
         echo '<td><span class="kondisipilih" style="color:' . $arcolor[$kondisi] . '">' . $arkondisitext[$kondisi] . "</span></td></tr>";
       }
       $np = 0;
-      foreach ($arpenyakit as $key => $value) {
+      // iterasi hasil diagnosa yang tersimpan di $arkerusakan
+      foreach ($arkerusakan as $key => $value) {
         $np++;
         $idpkt[$np] = $key;
         $nmpkt[$np] = $arpkt[$key];
         $vlpkt[$np] = $value;
       }
       if ($argpkt[$idpkt[1]]) {
-        $gambar = 'gambar/penyakit/' . $argpkt[$idpkt[1]];
+        $gambar = 'gambar/kerusakan/' . $argpkt[$idpkt[1]];
       } else {
         $gambar = 'gambar/noimage.png';
       }
       echo "</table><div class='well well-small'><img class='card-img-top img-bordered-sm' style='float:right; margin-left:15px;' src='" . $gambar . "' height=200><h3>Hasil Diagnosa</h3>";
-      echo "<div class='callout callout-default'>Jenis penyakit yang diderita adalah <b><h3 class='text text-success'>" . $nmpkt[1] . "</b> / " . round($vlpkt[1], 2) . " % (" . $vlpkt[1] . ")<br></h3>";
+      echo "<div class='callout callout-default'>Jenis kerusakan yang diderita adalah <b><h3 class='text text-success'>" . $nmpkt[1] . "</b> / " . round($vlpkt[1], 2) . " % (" . $vlpkt[1] . ")<br></h3>";
       echo "</div></div><div class='box box-info box-solid'><div class='box-header with-border'><h3 class='box-title'>Detail</h3></div><div class='box-body'><h4>";
       echo $ardpkt[$idpkt[1]];
       echo "</h4></div></div>
@@ -148,14 +150,14 @@ switch ($act) {
 		  </div>";
     } else {
       echo "
-	 <h2 class='text text-primary'>Diagnosa Penyakit</h2>  <hr>
+	 <h2 class='text text-primary'>Diagnosa Kerusakan</h2>  <hr>
 	 <div class='alert alert-success alert-dismissible'>
                 <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>
                 <h4><i class='icon fa fa-exclamation-triangle'></i>Perhatian !</h4>
                 Silahkan memilih gejala sesuai dengan kondisi ayam anda, anda dapat memilih kepastian kondisi ayam dari pasti tidak sampai pasti ya, jika sudah tekan tombol proses (<i class='fa fa-search-plus'></i>)  di bawah untuk melihat hasil.
               </div>
 		<form name=text_form method=POST action='diagnosa' >
-           <table class='table table-bordered table-striped konsultasi'><tbody class='pilihkondisi'>
+           <table class='table table-bordered table-striped konsultasi><tbody class='pilihkondisi'>
            <tr><th>No</th><th>Kode</th><th>Gejala</th><th width='20%'>Pilih Kondisi</th></tr>";
 
       $sql3 = mysqli_query($conn, "SELECT * FROM gejala order by kode_gejala");

@@ -9,10 +9,10 @@ if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
 <script type="text/javascript">
 function Blank_TextField_Validator()
 {
-if (text_form.kode_penyakit.value == "")
+if (text_form.kode_kerusakan.value == "")
 {
-   alert("Pilih dulu penyakit !");
-   text_form.kode_penyakit.focus();
+   alert("Pilih dulu kerusakan !");
+   text_form.kode_kerusakan.focus();
    return (false);
 }
 if (text_form.kode_gejala.value == "")
@@ -76,7 +76,7 @@ switch ($_GET['act'] ?? '') {
       </table></form>";
 		  	$baris=mysqli_num_rows($tampil);
 	if (isset($_POST['Go'])){
-			$numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM basis_pengetahuan b,penyakit p where b.kode_penyakit=p.kode_penyakit AND p.nama_penyakit like '%" . $_POST['keyword'] . "%'"));
+			$numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM basis_pengetahuan b,kerusakan k where b.kode_kerusakan=k.kode_kerusakan AND k.nama_kerusakan like '%" . $_POST['keyword'] . "%'"));
 			if ($numrows > 0){
 				echo "<div class='alert alert-success alert-dismissible'>
                 <h4><i class='icon fa fa-check'></i> Sukses!</h4>
@@ -87,7 +87,7 @@ switch ($_GET['act'] ?? '') {
           <thead>
             <tr>
               <th>No</th>
-              <th>Penyakit</th>
+              <th>Kerusakan</th>
               <th>Gejala</th>
               <th>MB</th>
               <th>MD</th>
@@ -95,7 +95,7 @@ switch ($_GET['act'] ?? '') {
             </tr>
           </thead>
 		  <tbody>"; 
-	$hasil = mysqli_query($conn,"SELECT * FROM basis_pengetahuan b,penyakit p where b.kode_penyakit=p.kode_penyakit AND p.nama_penyakit like '%$_POST[keyword]%'");
+	$hasil = mysqli_query($conn,"SELECT * FROM basis_pengetahuan b,kerusakan k where b.kode_kerusakan=k.kode_kerusakan AND k.nama_kerusakan like '%$_POST[keyword]%'");
 	$no = 1;
 	$counter = 1;
     while ($r=mysqli_fetch_array($hasil)){
@@ -104,16 +104,16 @@ switch ($_GET['act'] ?? '') {
 
         // safe values
         $kode_pengetahuan = $r['kode_pengetahuan'] ?? '';
-        $kode_penyakit   = $r['kode_penyakit'] ?? '';
+        $kode_kerusakan   = $r['kode_kerusakan'] ?? '';
         $kode_gejala     = $r['kode_gejala'] ?? '';
 
         // lookups
         $sql = mysqli_query($conn,"SELECT nama_gejala FROM gejala WHERE kode_gejala = '" . mysqli_real_escape_string($conn, $kode_gejala) . "'");
         $rgejala = mysqli_fetch_assoc($sql);
-        $sql2 = mysqli_query($conn,"SELECT nama_penyakit FROM penyakit WHERE kode_penyakit = '" . mysqli_real_escape_string($conn, $kode_penyakit) . "'");
-        $rpenyakit = mysqli_fetch_assoc($sql2);
+        $sql2 = mysqli_query($conn,"SELECT nama_kerusakan FROM kerusakan WHERE kode_kerusakan = '" . mysqli_real_escape_string($conn, $kode_kerusakan) . "'");
+        $rkerusakan = mysqli_fetch_assoc($sql2);
 
-        $nama_penyakit = $rpenyakit['nama_penyakit'] ?? 'Data Penyakit Tidak Ditemukan';
+        $nama_kerusakan = $rkerusakan['nama_kerusakan'] ?? 'Data Kerusakan Tidak Ditemukan';
         $nama_gejala   = $rgejala['nama_gejala'] ?? 'Data Gejala Tidak Ditemukan';
 
         // build URLs that include current offset
@@ -122,7 +122,7 @@ switch ($_GET['act'] ?? '') {
 
         echo "<tr class='".$warna."'>
             <td align='center'>".($no)."</td>
-            <td>".htmlspecialchars($nama_penyakit, ENT_QUOTES)."</td>
+            <td>".htmlspecialchars($nama_kerusakan, ENT_QUOTES)."</td>
             <td>".htmlspecialchars($nama_gejala, ENT_QUOTES)."</td>
             <td align='center'>".htmlspecialchars($r['mb'] ?? '', ENT_QUOTES)."</td>
             <td align='center'>".htmlspecialchars($r['md'] ?? '', ENT_QUOTES)."</td>
@@ -149,7 +149,7 @@ switch ($_GET['act'] ?? '') {
           <thead>
             <tr>
               <th>No</th>
-              <th>Penyakit</th>
+              <th>Kerusakan</th>
               <th>Gejala</th>
               <th>MB</th>
               <th>MD</th>
@@ -167,17 +167,17 @@ switch ($_GET['act'] ?? '') {
 	else $warna = "light";
 	$sql = mysqli_query($conn,"SELECT * FROM gejala where kode_gejala = '$r[kode_gejala]'");
 $rgejala=mysqli_fetch_array($sql); // Baris 162 - Variabel ini mungkin null
-// Ambil data penyakit
-$sql2 = mysqli_query($conn,"SELECT * FROM penyakit where kode_penyakit = '$r[kode_penyakit]'");
-$rpenyakit=mysqli_fetch_array($sql2); // Variabel ini mungkin null
+// Ambil data kerusakan
+$sql2 = mysqli_query($conn,"SELECT * FROM kerusakan where kode_kerusakan = '$r[kode_kerusakan]'");
+$rkerusakan=mysqli_fetch_array($sql2); // Variabel ini mungkin null
 
 // Lakukan pengecekan sebelum mencetak nilai array
-$nama_penyakit = isset($rpenyakit['nama_penyakit']) ? $rpenyakit['nama_penyakit'] : 'Data Penyakit Tidak Ditemukan';
+$nama_kerusakan = isset($rkerusakan['nama_kerusakan']) ? $rkerusakan['nama_kerusakan'] : 'Data Kerusakan Tidak Ditemukan';
 $nama_gejala = isset($rgejala['nama_gejala']) ? $rgejala['nama_gejala'] : 'Data Gejala Tidak Ditemukan';
 
 echo "<tr class='".$warna."'>
     <td align=center>$no</td>
-    <td>$nama_penyakit</td>
+    <td>$nama_kerusakan</td>
     <td>$nama_gejala</td>
     <td align=center>$r[mb]</td>
     <td align=center>$r[md]</td>
@@ -237,25 +237,25 @@ echo "<tr class='".$warna."'>
 	echo "	<div class='alert alert-success alert-dismissible'>
                 <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>
                 <h4><i class='icon fa fa-exclamation-triangle'></i>Petunjuk Pengisian Pakar !</h4>
-                Silahkan pilih gejala yang sesuai dengan penyakit yang ada, dan berikan <b>nilai kepastian (MB & MB)</b> dengan cakupan sebagai berikut:<br><br>
+                Silahkan pilih gejala yang sesuai dengan kerusakan yang ada, dan berikan <b>nilai kepastian (MB & MB)</b> dengan cakupan sebagai berikut:<br><br>
 				<b>1.0</b> (Pasti Ya)&nbsp;&nbsp;|&nbsp;&nbsp;<b>0.8</b> (Hampir Pasti)&nbsp;&nbsp;|<br>
 				<b>0.6</b> (Kemungkinan Besar)&nbsp;&nbsp;|&nbsp;&nbsp;<b>0.4</b> (Mungkin)&nbsp;&nbsp;|<br>
 				<b>0.2</b> (Hampir Mungkin)&nbsp;&nbsp;|&nbsp;&nbsp;<b>0.0</b> (Tidak Tahu atau Tidak Yakin)&nbsp;&nbsp;|<br><br>
 				<b>CF(Pakar) = MB – MD</b><br>
 				MB : Ukuran kenaikan kepercayaan (measure of increased belief) MD : Ukuran kenaikan ketidakpercayaan (measure of increased disbelief) <br> <br>
 				<b>Contoh:</b><br>
-				Jika kepercayaan <b>(MB)</b> anda terhadap gejala Mencret keputih-putihan untuk penyakit Berak Kapur adalah <b>0.8 (Hampir Pasti)</b><br>
-				Dan ketidakpercayaan <b>(MD)</b> anda terhadap gejala Mencret keputih-putihan untuk penyakit Berak Kapur adalah <b>0.2 (Hampir Mungkin)</b><br><br>
+				Jika kepercayaan <b>(MB)</b> anda terhadap gejala Mencret keputih-putihan untuk kerusakan Berak Kapur adalah <b>0.8 (Hampir Pasti)</b><br>
+				Dan ketidakpercayaan <b>(MD)</b> anda terhadap gejala Mencret keputih-putihan untuk kerusakan Berak Kapur adalah <b>0.2 (Hampir Mungkin)</b><br><br>
 				<b>Maka:</b> CF(Pakar) = MB – MD (0.8 - 0.2) = <b>0.6</b> <br>
-				Dimana nilai kepastian anda terhadap gejala Mencret keputih-putihan untuk penyakit Berak Kapur adalah <b>0.6 (Kemungkinan Besar)</b>
+				Dimana nilai kepastian anda terhadap gejala Mencret keputih-putihan untuk kerusakan Berak Kapur adalah <b>0.6 (Kemungkinan Besar)</b>
               </div>
           <form name=text_form method=POST action='$aksi?module=pengetahuan&act=input' onsubmit='return Blank_TextField_Validator()'>
 <input type='hidden' name='offset' value='".intval($offset)."'>
           <br><br><table class='table table-bordered'>
-		  <tr><td width=120>Penyakit</td><td><select class='form-control' name='kode_penyakit'  id='kode_penyakit'><option value=''>- Pilih Penyakit -</option>";
-		$hasil4 = mysqli_query($conn,"SELECT * FROM penyakit order by nama_penyakit");
+		  <tr><td width=120>Kerusakan</td><td><select class='form-control' name='kode_kerusakan'  id='kode_kerusakan'><option value=''>- Pilih Kerusakan -</option>";
+		$hasil4 = mysqli_query($conn,"SELECT * FROM kerusakan order by nama_kerusakan");
 		while($r4=mysqli_fetch_array($hasil4)){
-			echo "<option value='$r4[kode_penyakit]'>$r4[nama_penyakit]</option>";
+			echo "<option value='$r4[kode_kerusakan]'>$r4[nama_kerusakan]</option>";
 		}
 		echo	"</select></td></tr>
 		<tr><td>Gejala</td><td><select class='form-control' name='kode_gejala' id='kode_gejala'><option value=''>- Pilih Gejala -</option>";
@@ -280,12 +280,12 @@ echo "<tr class='".$warna."'>
           <input type=hidden name=id value='$r[kode_pengetahuan]'>
           <input type=hidden name=offset value='". intval($_GET['offset'] ?? 0) ."'>
           <br><br><table class='table table-bordered'>
-          <tr><td width=120>Penyakit</td><td><select class='form-control' name='kode_penyakit' id='kode_penyakit'>";
-        $hasil4 = mysqli_query($conn,"SELECT * FROM penyakit ORDER BY nama_penyakit");
+          <tr><td width=120>K</td><td><select class='form-control' name='kode_kerusakan' id='kode_kerusakan'>";
+        $hasil4 = mysqli_query($conn,"SELECT * FROM kerusakan ORDER BY nama_kerusakan");
         while($r4 = mysqli_fetch_array($hasil4)){
-            echo "<option value='".htmlspecialchars($r4['kode_penyakit'], ENT_QUOTES)."'";
-            if($r['kode_penyakit'] == $r4['kode_penyakit']) echo " selected";
-            echo ">".htmlspecialchars($r4['nama_penyakit'], ENT_QUOTES)."</option>";
+            echo "<option value='".htmlspecialchars($r4['kode_kerusakan'], ENT_QUOTES)."'";
+            if($r['kode_kerusakan'] == $r4['kode_kerusakan']) echo " selected";
+            echo ">".htmlspecialchars($r4['nama_kerusakan'], ENT_QUOTES)."</option>";
         }
         echo	"</select></td></tr>
         <tr><td>Gejala</td><td><select class='form-control' name='kode_gejala' id='kode_gejala'>";

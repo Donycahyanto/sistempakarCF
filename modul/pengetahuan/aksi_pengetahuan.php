@@ -42,13 +42,13 @@ if ($module === 'pengetahuan' && $act === 'hapus') {
 
 // Input pengetahuan
 elseif ($module === 'pengetahuan' && $act === 'input') {
-    $kode_penyakit = mysqli_real_escape_string($conn, $_POST['kode_penyakit'] ?? '');
+    $kode_kerusakan = mysqli_real_escape_string($conn, $_POST['kode_kerusakan'] ?? '');
     $kode_gejala   = mysqli_real_escape_string($conn, $_POST['kode_gejala'] ?? '');
     $mb = formatCertaintyValue($_POST['mb'] ?? '0');
     $md = formatCertaintyValue($_POST['md'] ?? '0');
 
-    $stmt = mysqli_prepare($conn, "INSERT INTO basis_pengetahuan(kode_penyakit, kode_gejala, mb, md) VALUES (?, ?, ?, ?)");
-    mysqli_stmt_bind_param($stmt, "ssdd", $kode_penyakit, $kode_gejala, $mb, $md);
+    $stmt = mysqli_prepare($conn, "INSERT INTO basis_pengetahuan(kode_kerusakan, kode_gejala, mb, md) VALUES (?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "ssdd", $kode_kerusakan, $kode_gejala, $mb, $md);
     mysqli_stmt_execute($stmt);
 
     $insert_id = mysqli_insert_id($conn);
@@ -72,14 +72,14 @@ elseif ($module === 'pengetahuan' && $act === 'input') {
 // Update pengetahuan
 elseif ($module === 'pengetahuan' && $act === 'update') {
     $id = mysqli_real_escape_string($conn, $_POST['id'] ?? '');
-    $kode_penyakit = mysqli_real_escape_string($conn, $_POST['kode_penyakit'] ?? '');
+    $kode_kerusakan = mysqli_real_escape_string($conn, $_POST['kode_kerusakan'] ?? '');
     $kode_gejala   = mysqli_real_escape_string($conn, $_POST['kode_gejala'] ?? '');
     $mb = formatCertaintyValue($_POST['mb'] ?? '0');
     $md = formatCertaintyValue($_POST['md'] ?? '0');
     $offset = intval($_POST['offset'] ?? 0);
 
-    $stmt = mysqli_prepare($conn, "UPDATE basis_pengetahuan SET kode_penyakit=?, kode_gejala=?, mb=?, md=? WHERE kode_pengetahuan=?");
-    mysqli_stmt_bind_param($stmt, "ssdds", $kode_penyakit, $kode_gejala, $mb, $md, $id);
+    $stmt = mysqli_prepare($conn, "UPDATE basis_pengetahuan SET kode_kerusakan=?, kode_gejala=?, mb=?, md=? WHERE kode_pengetahuan=?");
+    mysqli_stmt_bind_param($stmt, "ssdds", $kode_kerusakan, $kode_gejala, $mb, $md, $id);
     mysqli_stmt_execute($stmt);
 
     header('location:../../index.php?module=' . $module . '&offset=' . $offset);

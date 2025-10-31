@@ -8,7 +8,7 @@ $module = isset($_GET['module']) ? $_GET['module'] : '';
       ?>
     <li><a <?php if ($module == "admin") echo 'class="active"'; ?> href="admin"><i class="fa fa-user"></i> <span>Admin</span></a><li>
       <div class="container"></div>	
-    <li><a <?php if ($module == "penyakit") echo 'class="active"'; ?> href="penyakit"><i class="fa fa-bug"></i> <span>Penyakit</span></a><li>
+    <li><a <?php if ($module == "kerusakan") echo 'class="active"'; ?> href="kerusakan"><i class="fa fa-bug"></i> <span>Kerusakan</span></a><li>
       <div class="container"></div>	
     <li><a <?php if ($module == "gejala") echo 'class="active"'; ?> href="gejala"><i class="fa fa-eyedropper"></i> <span>Gejala</span></a><li>
       <div class="container"></div>

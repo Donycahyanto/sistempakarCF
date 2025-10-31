@@ -36,14 +36,14 @@ while ($rkondisi = mysqli_fetch_assoc($sqlkondisi)) {
     $arkondisitext[$rkondisi['id']] = $rkondisi['kondisi'];
 }
 
-// preload semua penyakit
+// preload semua kerusakan
 $arpkt = $ardpkt = $arspkt = $argpkt = [];
-$sqlpkt = mysqli_query($conn, "SELECT * FROM penyakit ORDER BY kode_penyakit+0");
+$sqlpkt = mysqli_query($conn, "SELECT * FROM kerusakan ORDER BY kode_kerusakan+0");
 while ($rpkt = mysqli_fetch_assoc($sqlpkt)) {
-    $k = $rpkt['kode_penyakit'];
-    $arpkt[$k]   = $rpkt['nama_penyakit'];
-    $ardpkt[$k]  = $rpkt['det_penyakit'];
-    $arspkt[$k]  = $rpkt['srn_penyakit'];
+    $k = $rpkt['kode_kerusakan'];
+    $arpkt[$k]   = $rpkt['nama_kerusakan'];
+    $ardpkt[$k]  = $rpkt['det_kerusakan'];
+    $arspkt[$k]  = $rpkt['srn_kerusakan'];
     $argpkt[$k]  = $rpkt['gambar'];
 }
 
@@ -55,14 +55,14 @@ while ($rg = mysqli_fetch_assoc($sqlgejala)) {
 }
 
 // ambil hasil dari DB (safely)
-$stmt = mysqli_prepare($conn, "SELECT penyakit, gejala FROM hasil WHERE id_hasil = ?");
+$stmt = mysqli_prepare($conn, "SELECT kerusakan, gejala FROM hasil WHERE id_hasil = ?");
 mysqli_stmt_bind_param($stmt, "i", $id);
 mysqli_stmt_execute($stmt);
 $res = mysqli_stmt_get_result($stmt);
-$arpenyakit = $argejala_from_db = [];
+$arkerusakan = $argejala_from_db = [];
 if ($res && $row = mysqli_fetch_assoc($res)) {
     // gunakan allowed_classes=false untuk mengurangi risiko
-    $arpenyakit = @unserialize($row['penyakit'], ['allowed_classes' => false]) ?: [];
+    $arkerusakan = @unserialize($row['kerusakan'], ['allowed_classes' => false]) ?: [];
     $argejala_from_db = @unserialize($row['gejala'], ['allowed_classes' => false]) ?: [];
 }
 
@@ -71,10 +71,10 @@ if (empty($argejala) && !empty($argejala_from_db) && is_array($argejala_from_db)
     $argejala = $argejala_from_db;
 }
 
-// ubah struktur penyakit ke array terurut
+// ubah struktur kerusakan ke array terurut
 $idpkt = $nmpkt = $vlpkt = [];
 $np = 0;
-foreach ($arpenyakit as $key => $value) {
+foreach ($arkerusakan as $key => $value) {
     $np++;
     $idpkt[$np]  = $key;
     $nmpkt[$np]  = $arpkt[$key] ?? 'Unknown';
@@ -84,7 +84,7 @@ foreach ($arpenyakit as $key => $value) {
 // gambar utama
 $gambar = 'gambar/noimage.png';
 if (!empty($idpkt[1]) && !empty($argpkt[$idpkt[1]])) {
-    $gambar = 'gambar/penyakit/' . $argpkt[$idpkt[1]];
+    $gambar = 'gambar/kerusakan/' . $argpkt[$idpkt[1]];
 }
 
 // tampilan hasil (escape output)
@@ -128,7 +128,7 @@ echo "<div class='well well-small'>
 
 $namaUtama = $nmpkt[1] ?? '-';
 $nilaiUtama = isset($vlpkt[1]) ? round($vlpkt[1], 2) : 0;
-echo "<div class='callout callout-default'>Jenis penyakit yang diderita adalah <b><h3 class='text text-success'>" . htmlspecialchars($namaUtama, ENT_QUOTES) . "</h3></b> / " . htmlspecialchars($nilaiUtama, ENT_QUOTES) . " % (" . htmlspecialchars($vlpkt[1] ?? 0, ENT_QUOTES) . ")</div>";
+echo "<div class='callout callout-default'>Jenis kerusakan yang diderita adalah <b><h3 class='text text-success'>" . htmlspecialchars($namaUtama, ENT_QUOTES) . "</h3></b> / " . htmlspecialchars($nilaiUtama, ENT_QUOTES) . " % (" . htmlspecialchars($vlpkt[1] ?? 0, ENT_QUOTES) . ")</div>";
 echo "</div>";
 
 echo "<div class='box box-info box-solid'><div class='box-header with-border'><h3 class='box-title'>Detail</h3></div><div class='box-body'><h4>";

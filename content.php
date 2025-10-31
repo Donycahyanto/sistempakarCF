@@ -9,8 +9,8 @@ include "modul/bantuan.php";
 include "modul/harga.php";
 }elseif ($module == "diagnosa"){
 include "modul/diagnosa/diagnosa.php";
-}elseif ($module == "penyakit"){
-include "modul/penyakit/penyakit.php";
+}elseif ($module == "kerusakan"){
+include "modul/kerusakan/kerusakan.php";
 }elseif ($module == "post"){
 include "modul/post/post.php";
 }elseif ($module == "admin"){

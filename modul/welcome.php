@@ -17,15 +17,15 @@
         </div>
         <!-- ./col -->
 <?php 
-	$htpenyakit=mysqli_query($conn,"SELECT count(*) as total from penyakit");
-	  $dtpenyakit=mysqli_fetch_assoc($htpenyakit); ?>
+	$htkerusakan=mysqli_query($conn,"SELECT count(*) as total from kerusakan");
+	  $dtkerusakan=mysqli_fetch_assoc($htkerusakan); ?>
         <div class="col-lg-3 col-xs-6">
           <!-- small box -->
           <div class="small-box bg-green">
             <div class="inner">
-              <h3> <?php echo $dtpenyakit["total"]; ?></h3>
+              <h3> <?php echo $dtkerusakan["total"]; ?></h3>
 
-              <p>Total Penyakit</p>
+              <p>Total Kerusakan</p>
             </div>
             <div class="icon">
               <i class="ion ion-bug"></i>
