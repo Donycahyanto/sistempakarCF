@@ -67,7 +67,7 @@ echo "<form method=POST action='?module=gejala' name=text_form onsubmit='return 
 		  
 	if (isset($_POST['Go'])){
 			$keyword = $_POST['keyword'];
-$numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_gejala LIKE '%$keyword%'"));
+$numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_gejala LIKE '$keyword%'"));
 			if ($numrows > 0){
 				echo "<div class='alert alert-success alert-dismissible'>
                 <h4><i class='icon fa fa-check'></i> Sukses!</h4>
@@ -84,7 +84,7 @@ $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_g
           </thead>
 		  <tbody>"; 
 	
-	$hasil = mysqli_query($conn,"SELECT * FROM gejala WHERE nama_gejala LIKE '%$keyword%'");
+	$hasil = mysqli_query($conn,"SELECT * FROM gejala WHERE nama_gejala LIKE '$keyword%'");
 	$no = 1;
 	$counter = 1;
     while ($r=mysqli_fetch_array($hasil)){

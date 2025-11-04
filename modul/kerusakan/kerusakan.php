@@ -51,7 +51,7 @@ if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
           </table></form>";
       $baris = mysqli_num_rows($tampil);
       if ($_POST['Go'] ?? '') {
-        $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM kerusakan where nama_kerusakan like '%$_POST[keyword]%'"));
+        $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM kerusakan where nama_kerusakan like '$_POST[keyword]%'"));
         if ($numrows > 0) {
           echo "<div class='alert alert-success alert-dismissible'>
                 <h4><i class='icon fa fa-check'></i> Sukses!</h4>
@@ -69,7 +69,7 @@ if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
             </tr>
           </thead>
 		  <tbody>";
-          $hasil = mysqli_query($conn,"SELECT * FROM kerusakan where nama_kerusakan like '%$_POST[keyword]%'");
+          $hasil = mysqli_query($conn,"SELECT * FROM kerusakan where nama_kerusakan like '$_POST[keyword]%'");
           $no = 1;
           $counter = 1;
           while ($r = mysqli_fetch_array($hasil)) {

@@ -139,7 +139,7 @@ $module = isset($_GET['module']) ? $_GET['module'] : 'beranda';
       <!-- Main Footer -->
       <footer class="main-footer">
         <!-- Kontak dihapus -->
-        <strong><div class="cinta">Copyright © 2025 - Made with <i class="fa fa-heart pulse"></i> by <a href="http://januriawan.github.io" target="_blank">Dony Cahyanto</a></div></strong>
+        <strong><div class="cinta">Copyright © 2025 - Made with <i class="fa fa-heart pulse"></i> by <a href="http://donycahyanto.github.io/web-portfolio" target="_blank">Dony Cahyanto</a></div></strong>
       </footer>
       <!-- Add the sidebar's background. This div must be placed
            immediately after the control sidebar -->

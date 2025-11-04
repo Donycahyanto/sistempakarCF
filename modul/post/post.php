@@ -49,7 +49,7 @@ switch ($_GET['act'] ?? '') {
           </table></form>";
         $baris = mysqli_num_rows($tampil);
         if (isset($_POST['Go'])){
-            $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM post where nama_post like '%$_POST[keyword]%'"));
+            $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM post where nama_post like '$_POST[keyword]%'"));
             if ($numrows > 0) {
                 echo "<div class='alert alert-success alert-dismissible'>
                 <h4><i class='icon fa fa-check'></i> Sukses!</h4>
@@ -67,7 +67,7 @@ switch ($_GET['act'] ?? '') {
             </tr>
           </thead>
 		  <tbody>";
-                $hasil = mysqli_query($conn,"SELECT * FROM post where nama_post like '%$_POST[keyword]%'");
+                $hasil = mysqli_query($conn,"SELECT * FROM post where nama_post like '$_POST[keyword]%'");
                 $no = 1;
                 $counter = 1;
                 while ($r = mysqli_fetch_array($hasil)) {
