@@ -9,6 +9,32 @@ switch ($act) {
 
   default:
     if (isset($_POST['submit'])) {
+      // Validasi jumlah gejala yang dipilih
+      $selectedSymptoms = 0;
+      foreach ($_POST['kondisi'] as $kondisi) {
+        if (strlen($kondisi) > 1 && $kondisi != '0') {
+          $selectedSymptoms++;
+        }
+      }
+      
+      if ($selectedSymptoms > 9) {
+        echo "
+        <script>
+          alert('Terlalu banyak gejala dipilih!\\\\nAnda telah memilih ' + $selectedSymptoms + ' gejala.\\\\nMaksimal yang diperbolehkan adalah 9 gejala.\\\\nSilakan kurangi pilihan gejala Anda.');
+          window.history.back();
+        </script>";
+        break;
+      }
+      
+      if ($selectedSymptoms < 4) {
+        echo "
+        <script>
+          alert('Silakan pilih minimal 4 gejala untuk melakukan diagnosa.\\\\nAnda baru memilih ' + $selectedSymptoms + ' gejala.');
+          window.history.back();
+        </script>";
+        break;
+      }
+
       $arcolor = array('#ffffff', '#cc66ff', '#019AFF', '#00CBFD', '#00FEFE', '#A4F804', '#FFFC00', '#FDCD01', '#FD9A01', '#FB6700');
       date_default_timezone_set("Asia/Jakarta");
       $inptanggal = date('Y-m-d H:i:s');
@@ -18,7 +44,7 @@ switch ($act) {
 
       for ($i = 0; $i < count($_POST['kondisi']); $i++) {
         $arkondisi = explode("_", $_POST['kondisi'][$i]);
-        if (strlen($_POST['kondisi'][$i]) > 1) {
+        if (strlen($_POST['kondisi'][$i]) > 1 && $_POST['kondisi'][$i] != '0') {
           $argejala += array($arkondisi[0] => $arkondisi[1]);
         }
       }
@@ -36,9 +62,8 @@ switch ($act) {
         $argpkt[$rpkt['kode_kerusakan']] = $rpkt['gambar'];
       }
 
-      //print_r($arkondisitext);
-// -------- perhitungan certainty factor (CF) ---------
-// --------------------- START ------------------------
+      // -------- perhitungan certainty factor (CF) ---------
+      // --------------------- START ------------------------
       $sqlkerusakan = mysqli_query($conn, "SELECT * FROM kerusakan order by kode_kerusakan");
       $arkerusakan = array();
       while ($rkerusakan = mysqli_fetch_array($sqlkerusakan)) {
@@ -78,32 +103,44 @@ switch ($act) {
       $inpgejala = serialize($argejala);
       $inpkerusakan = serialize($arkerusakan);
 
+      // Initialize variables to prevent undefined variable warnings
+      $idpkt1 = array();
+      $vlpkt1 = array();
       $np1 = 0;
-      foreach ($arkerusakan as $key1 => $value1) {
-        $np1++;
-        $idpkt1[$np1] = $key1;
-        $vlpkt1[$np1] = $value1;
+      
+      // Only process if there are diagnosis results
+      if (!empty($arkerusakan)) {
+        foreach ($arkerusakan as $key1 => $value1) {
+          $np1++;
+          $idpkt1[$np1] = $key1;
+          $vlpkt1[$np1] = $value1;
+        }
+
+        // Check if we have at least one result before inserting
+        if ($np1 > 0 && isset($idpkt1[1]) && isset($vlpkt1[1])) {
+          mysqli_query($conn, "INSERT INTO hasil(
+                      tanggal,
+                      gejala,
+                      kerusakan,
+                      hasil_id,
+                      hasil_nilai
+                      ) 
+                VALUES(
+                    '$inptanggal',
+                    '$inpgejala',
+                    '$inpkerusakan',
+                    '$idpkt1[1]',
+                    '$vlpkt1[1]'
+                    )");
+        }
       }
 
-      mysqli_query($conn, "INSERT INTO hasil(
-                  tanggal,
-                  gejala,
-                  kerusakan,
-                  hasil_id,
-                  hasil_nilai
-				  ) 
-	        VALUES(
-                '$inptanggal',
-                '$inpgejala',
-                '$inpkerusakan',
-                '$idpkt1[1]',
-                '$vlpkt1[1]'
-				)");
-// --------------------- END -------------------------
+      // --------------------- END -------------------------
 
       echo "<div class='content'>
-	<h2 class='text text-primary'>Hasil Diagnosis &nbsp;&nbsp;<button id='print' onClick='window.print();' data-toggle='tooltip' data-placement='right' title='Klik tombol ini untuk mencetak hasil diagnosa'><i class='fa fa-print'></i> Cetak</button> </h2>
-	          <hr><table class='table table-bordered table-striped diagnosa'> 
+      <h2 class='text text-primary'>Hasil Diagnosis &nbsp;&nbsp;<button id='print' onClick='window.print();' data-toggle='tooltip' data-placement='right' title='Klik tombol ini untuk mencetak hasil diagnosa'><i class='fa fa-print'></i> Cetak</button> </h2>
+              <hr>
+              <table class='table table-bordered table-striped diagnosa'> 
           <th width=8%>No</th>
           <th width=10%>Kode</th>
           <th>Gejala yang dialami (keluhan)</th>
@@ -121,43 +158,58 @@ switch ($act) {
         echo '<td><span class="hasil text text-primary">' . $r4['nama_gejala'] . "</span></td>";
         echo '<td><span class="kondisipilih" style="color:' . $arcolor[$kondisi] . '">' . $arkondisitext[$kondisi] . "</span></td></tr>";
       }
-      $np = 0;
-      // iterasi hasil diagnosa yang tersimpan di $arkerusakan
-      foreach ($arkerusakan as $key => $value) {
-        $np++;
-        $idpkt[$np] = $key;
-        $nmpkt[$np] = $arpkt[$key];
-        $vlpkt[$np] = $value;
-      }
-      if ($argpkt[$idpkt[1]]) {
-        $gambar = 'gambar/kerusakan/' . $argpkt[$idpkt[1]];
+      
+      // Check if there are diagnosis results to display
+      if (!empty($arkerusakan)) {
+        $np = 0;
+        $idpkt = array();
+        $nmpkt = array();
+        $vlpkt = array();
+        
+        // iterasi hasil diagnosa yang tersimpan di $arkerusakan
+        foreach ($arkerusakan as $key => $value) {
+          $np++;
+          $idpkt[$np] = $key;
+          $nmpkt[$np] = $arpkt[$key];
+          $vlpkt[$np] = $value;
+        }
+        
+        if ($argpkt[$idpkt[1]]) {
+          $gambar = 'gambar/kerusakan/' . $argpkt[$idpkt[1]];
+        } else {
+          $gambar = 'gambar/noimage.png';
+        }
+        
+        echo "</table><div class='well well-small'><img class='card-img-top img-bordered-sm' style='float:right; margin-left:15px;' src='" . $gambar . "' height=200><h3>Hasil Diagnosa</h3>";
+        echo "<div class='callout callout-default'>Jenis kerusakan yang diderita adalah <b><h3 class='text text-success'>" . $nmpkt[1] . "</b> / " . round($vlpkt[1], 2) . " % (" . $vlpkt[1] . ")<br></h3>";
+        echo "</div></div><div class='box box-info box-solid'><div class='box-header with-border'><h3 class='box-title'>Detail</h3></div><div class='box-body'><h4>";
+        echo $ardpkt[$idpkt[1]];
+        echo "</h4></div></div>
+            <div class='box box-warning box-solid'><div class='box-header with-border'><h3 class='box-title'>Saran</h3></div><div class='box-body'><h4>";
+        echo $arspkt[$idpkt[1]];
+        echo "</h4></div></div>
+            <div class='box box-danger box-solid'><div class='box-header with-border'><h3 class='box-title'>Kemungkinan lain:</h3></div><div class='box-body'><h4>";
+        for ($ipl = 2; $ipl <= count($idpkt); $ipl++) {
+          if (isset($nmpkt[$ipl]) && isset($vlpkt[$ipl])) {
+            echo " <h4><i class='fa fa-caret-square-o-right'></i> " . $nmpkt[$ipl] . "</b> / " . round($vlpkt[$ipl], 2) . " % (" . $vlpkt[$ipl] . ")<br></h4>";
+          }
+        }
+        echo "</div></div>";
       } else {
-        $gambar = 'gambar/noimage.png';
+        echo "</table><div class='alert alert-warning'><h3>Tidak ada hasil diagnosa</h3><p>Gejala yang dipilih tidak cukup untuk menentukan jenis kerusakan. Silakan coba lagi dengan memilih lebih banyak gejala.</p></div>";
       }
-      echo "</table><div class='well well-small'><img class='card-img-top img-bordered-sm' style='float:right; margin-left:15px;' src='" . $gambar . "' height=200><h3>Hasil Diagnosa</h3>";
-      echo "<div class='callout callout-default'>Jenis kerusakan yang diderita adalah <b><h3 class='text text-success'>" . $nmpkt[1] . "</b> / " . round($vlpkt[1], 2) . " % (" . $vlpkt[1] . ")<br></h3>";
-      echo "</div></div><div class='box box-info box-solid'><div class='box-header with-border'><h3 class='box-title'>Detail</h3></div><div class='box-body'><h4>";
-      echo $ardpkt[$idpkt[1]];
-      echo "</h4></div></div>
-          <div class='box box-warning box-solid'><div class='box-header with-border'><h3 class='box-title'>Saran</h3></div><div class='box-body'><h4>";
-      echo $arspkt[$idpkt[1]];
-      echo "</h4></div></div>
-          <div class='box box-danger box-solid'><div class='box-header with-border'><h3 class='box-title'>Kemungkinan lain:</h3></div><div class='box-body'><h4>";
-      for ($ipl = 2; $ipl < count($idpkt); $ipl++) {
-        echo " <h4><i class='fa fa-caret-square-o-right'></i> " . $nmpkt[$ipl] . "</b> / " . round($vlpkt[$ipl], 2) . " % (" . $vlpkt[$ipl] . ")<br></h4>";
-      }
-      echo "</div></div>
-		  </div>";
+      
+      echo "</div>";
     } else {
       echo "
-	 <h2 class='text text-primary'>Diagnosa Kerusakan</h2>  <hr>
-	 <div class='alert alert-success alert-dismissible'>
+     <h2 class='text text-primary'>Diagnosa Kerusakan</h2>  <hr>
+     <div class='alert alert-success alert-dismissible'>
                 <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>
                 <h4><i class='icon fa fa-exclamation-triangle'></i>Perhatian !</h4>
-                Silahkan memilih gejala sesuai dengan kondisi ayam anda, anda dapat memilih kepastian kondisi ayam dari pasti tidak sampai pasti ya, jika sudah tekan tombol proses (<i class='fa fa-search-plus'></i>)  di bawah untuk melihat hasil.
+                Silahkan memilih gejala sesuai dengan kondisi komputer anda, anda dapat memilih kepastian kondisi komputer dari pasti tidak sampai pasti. <strong>Minimal 4 gejala dan maksimal 9 gejala yang dapat dipilih</strong>. Jika sudah tekan tombol proses (<i class='fa fa-search-plus'></i>) di bawah untuk melihat hasil.
               </div>
-		<form name=text_form method=POST action='diagnosa' >
-           <table class='table table-bordered table-striped konsultasi><tbody class='pilihkondisi'>
+        <form name='text_form' method='POST' action='diagnosa' onsubmit='return validateSymptoms()'>
+           <table class='table table-bordered table-striped konsultasi'><tbody class='pilihkondisi'>
            <tr><th>No</th><th>Kode</th><th>Gejala</th><th width='20%'>Pilih Kondisi</th></tr>";
 
       $sql3 = mysqli_query($conn, "SELECT * FROM gejala order by kode_gejala");
@@ -189,7 +241,6 @@ switch ($act) {
               var selectedItem = $('tr td select#sl<?php echo $i; ?> :selected');
               var color = arcolor[selectedItem.data("id")];
               $('tr td select#sl<?php echo $i; ?>.opsikondisi').css('background-color', color);
-              console.log(color);
             }
           });
         </script>
@@ -198,7 +249,30 @@ switch ($act) {
       }
       echo "
 		  <input class='float' type=submit data-toggle='tooltip' data-placement='top' title='Klik disini untuk melihat hasil diagnosa' name=submit value='&#xf00e;' style='font-family:Arial, FontAwesome'>
-          </tbody></table></form>";
+          </tbody></table></form>
+          
+          <script>
+          function validateSymptoms() {
+            let selectedCount = 0;
+            $('select[name=\"kondisi[]\"]').each(function() {
+              if ($(this).val() !== '0') {
+                selectedCount++;
+              }
+            });
+            
+            if (selectedCount < 4) {
+              alert('Silakan pilih minimal 4 gejala untuk melakukan diagnosa.\\ Anda baru memilih ' + selectedCount + ' gejala.');
+              return false;
+            }
+            
+            if (selectedCount > 9) {
+              alert('Anda telah memilih ' + selectedCount + ' gejala.\\ Maksimal yang diperbolehkan adalah 9 gejala.\\ Silakan kurangi pilihan gejala Anda.');
+              return false;
+            }
+            
+            return true;
+          }
+          </script>";
     }
     break;
 }

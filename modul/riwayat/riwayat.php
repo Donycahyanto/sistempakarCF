@@ -4,6 +4,7 @@
 <?php
 include "config/fungsi_alert.php";
 $aksi = "modul/riwayat/aksi_hasil.php";
+
 switch ($_GET['act'] ?? '') {
 // Tampil hasil
     default:
@@ -32,12 +33,14 @@ switch ($_GET['act'] ?? '') {
         $tampil = mysqli_query($conn,"SELECT * FROM hasil ORDER BY id_hasil");
         $baris = mysqli_num_rows($tampil);
         if ($baris > 0) {
-            echo"<div class='row'><div class='col-md-8'><table class='table table-bordered table-striped riwayat' style='overflow-x=auto' cellpadding='0' cellspacing='0'>
+            echo"<div class='row'><div class='col-md-8'><table class='table table-bordered table-striped riwayat' id='riwayatTable' style='overflow-x=auto' cellpadding='0' cellspacing='0'>
           <thead>
             <tr>
               <th>No</th>
               <th>Tanggal</th>
-              <th>Penyakit</th>
+              <th>Kerusakan
+                <input type='text' class='table-filter' data-column='2' placeholder='Cari kerusakan...' style='width: 100%; margin-top: 5px; padding: 6px; font-size: 12px; border: 1px solid #ccc; background-color: white; color: #333; border-radius: 3px;'>
+              </th>
               <th nowrap>Nilai CF</th>
               <th width='21%' class='text-center'>Aksi</th>
             </tr>
@@ -54,11 +57,11 @@ switch ($_GET['act'] ?? '') {
                     $warna = "dark";
                 else
                     $warna = "light";
-                $penyakit_name = isset($arpkt[$r['hasil_id']]) ? $arpkt[$r['hasil_id']] : 'Unknown Penyakit';
-                echo "<tr class='" . $warna . "'>
+                $kerusakan_name = isset($arpkt[$r['hasil_id']]) ? $arpkt[$r['hasil_id']] : 'Unknown Kerusakan';
+                echo "<tr data-kerusakan='" . htmlspecialchars($kerusakan_name) . "'>
              <td align=center>$no</td>
              <td>$r[tanggal]</td>
-             <td>" . $penyakit_name . "</td>
+             <td>" . $kerusakan_name . "</td>
              <td><span class='label label-default'>" . $r['hasil_nilai'] . "</span></td>
              <td align=center>
              <a type='button' class='btn btn-default btn-xs' target='_blank' href='riwayat-detail/" . $r['id_hasil'] . "'><i class='fa fa-eye' aria-hidden='true'></i> Detail </a> &nbsp;
@@ -91,7 +94,6 @@ switch ($_GET['act'] ?? '') {
                 <!-- /.box-body-->
               </div>
             </div>
-
 
             <?php
             echo "</div><div class='col-md-12'><div class='row'><div class=paging>";
@@ -135,27 +137,42 @@ switch ($_GET['act'] ?? '') {
 }
 ?>
 
+<style>
+.table-filter {
+    border: 1px solid #ccc !important;
+    background-color: white !important;
+    color: #333 !important;
+    border-radius: 3px;
+    padding: 6px;
+    font-size: 12px;
+    width: 100%;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
+.table-filter:focus {
+    border-color: #007bff !important;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+.highlight {
+    background-color: #ffff99 !important;
+}
+</style>
+
 <script>
     $(function () {
 
 <?php
-//$arr[] = array();
-
 $hasilg = mysqli_query($conn,"SELECT hasil_id, count('hasil_id') jlh_id FROM hasil group by hasil_id ORDER BY jlh_id desc");
 $arr = array(); // initialize array for chart data
 while ($rg = mysqli_fetch_array($hasilg)) {
   if ($rg['hasil_id'] > 0) {
-    $label = isset($arpkt[$rg['hasil_id']]) ? '&nbsp;' . $arpkt[$rg['hasil_id']] : '&nbsp;Unknown Penyakit';
-    $arr[] = array('label' => $label, 'data' => array(array('Penyakit ' . $rg['hasil_id'], $rg['jlh_id'])));
+    $label = isset($arpkt[$rg['hasil_id']]) ? '&nbsp;' . $arpkt[$rg['hasil_id']] : '&nbsp;Unknown Kerusakan';
+    $arr[] = array('label' => $label, 'data' => array(array('Kerusakan ' . $rg['hasil_id'], $rg['jlh_id'])));
   }
 }
 ?>
       var donutData = <?php echo json_encode($arr); ?>
-//      var donutData = [
-//        {label: 'Series2', data: 30, color: '#3c8dbc'},
-//        {label: 'Series3', data: 20, color: '#0073b7'},
-//        {label: 'Series4', data: 50, color: '#00c0ef'}
-//      ]
 
       function legendFormatter(label, series) {
         return '<div class="text text-primary margin4">' + label + ' ' + Math.round(series.percent) + '%';
@@ -184,16 +201,33 @@ while ($rg = mysqli_fetch_array($hasilg)) {
           labelFormatter: legendFormatter,
         }
       })
-      /*
-       * END DONUT CHART
-       */
+
+      // Fungsi untuk filtering kerusakan
+      function filterTable() {
+          var $rows = $('#riwayatTable tbody tr');
+          var filterValue = $('#riwayatTable .table-filter').val().toLowerCase();
+          
+          $rows.each(function() {
+              var kerusakanText = $(this).data('kerusakan').toLowerCase();
+              if (kerusakanText.indexOf(filterValue) > -1) {
+                  $(this).show();
+                  $(this).removeClass('highlight');
+                  if (filterValue !== '') {
+                      $(this).addClass('highlight');
+                  }
+              } else {
+                  $(this).hide();
+              }
+          });
+      }
+
+      // Event handler untuk filtering
+      $('.table-filter').on('keyup', function() {
+          filterTable();
+      });
 
     })
 
-    /*
-     * Custom Label formatter
-     * ----------------------
-     */
     function labelFormatter(label, series) {
       return '<div style="font-size:13px; text-align:center; padding:2px; color: #fff; font-weight: 600;">'
               + label
@@ -201,7 +235,3 @@ while ($rg = mysqli_fetch_array($hasilg)) {
               + Math.round(series.percent) + '%</div>'
     }
 </script>
-
-
-
-

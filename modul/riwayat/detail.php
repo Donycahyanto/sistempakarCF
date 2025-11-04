@@ -128,7 +128,7 @@ echo "<div class='well well-small'>
 
 $namaUtama = $nmpkt[1] ?? '-';
 $nilaiUtama = isset($vlpkt[1]) ? round($vlpkt[1], 2) : 0;
-echo "<div class='callout callout-default'>Jenis kerusakan yang diderita adalah <b><h3 class='text text-success'>" . htmlspecialchars($namaUtama, ENT_QUOTES) . "</h3></b> / " . htmlspecialchars($nilaiUtama, ENT_QUOTES) . " % (" . htmlspecialchars($vlpkt[1] ?? 0, ENT_QUOTES) . ")</div>";
+echo "<div class='callout callout-default'>Berdasarkan analisis gejala, kerusakan yang terdeteksi: <b><h3 class='text text-success'>" . htmlspecialchars($namaUtama, ENT_QUOTES) . "</h3></b> / " . htmlspecialchars($nilaiUtama, ENT_QUOTES) . " % (" . htmlspecialchars($vlpkt[1] ?? 0, ENT_QUOTES) . ")</div>";
 echo "</div>";
 
 echo "<div class='box box-info box-solid'><div class='box-header with-border'><h3 class='box-title'>Detail</h3></div><div class='box-body'><h4>";
