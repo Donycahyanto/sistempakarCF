@@ -3,7 +3,22 @@
 <hr>
 <?php
 include "config/fungsi_alert.php";
-$aksi = "modul/riwayat/aksi_hasil.php";
+
+// Handle delete action
+if (isset($_GET['act']) && $_GET['act'] == 'hapus' && isset($_GET['id'])) {
+    $id_hasil = $_GET['id'];
+    $query = mysqli_query($conn, "DELETE FROM hasil WHERE id_hasil = '$id_hasil'");
+    
+    if ($query) {
+        echo "<script>alert('Data riwayat berhasil dihapus');</script>";
+        echo "<script>window.location.href = 'index.php?module=riwayat';</script>";
+        exit;
+    } else {
+        echo "<script>alert('Gagal menghapus data riwayat');</script>";
+        echo "<script>window.location.href = 'index.php?module=riwayat';</script>";
+        exit;
+    }
+}
 
 switch ($_GET['act'] ?? '') {
 // Tampil hasil
@@ -42,7 +57,7 @@ switch ($_GET['act'] ?? '') {
                 <input type='text' class='table-filter' data-column='2' placeholder='Cari kerusakan...' style='width: 100%; margin-top: 5px; padding: 6px; font-size: 12px; border: 1px solid #ccc; background-color: white; color: #333; border-radius: 3px;'>
               </th>
               <th nowrap>Nilai CF</th>
-              <th width='21%' class='text-center'>Aksi</th>
+              <th width='25%' class='text-center'>Aksi</th>
             </tr>
           </thead>
 		  <tbody>
@@ -64,7 +79,8 @@ switch ($_GET['act'] ?? '') {
              <td>" . $kerusakan_name . "</td>
              <td><span class='label label-default'>" . $r['hasil_nilai'] . "</span></td>
              <td align=center>
-             <a type='button' class='btn btn-default btn-xs' target='_blank' href='riwayat-detail/" . $r['id_hasil'] . "'><i class='fa fa-eye' aria-hidden='true'></i> Detail </a> &nbsp;
+                 <a type='button' class='btn btn-default btn-xs' target='_blank' href='riwayat-detail/" . $r['id_hasil'] . "'><i class='fa fa-eye' aria-hidden='true'></i> Detail </a> &nbsp;
+                 <a type='button' class='btn btn-danger btn-xs' href='javascript:void(0)' onclick=\"confirmDelete('index.php?module=riwayat&act=hapus&id=$r[id_hasil]')\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
              </td></tr>";
                 $no++;
                 $counter++;
@@ -227,6 +243,13 @@ while ($rg = mysqli_fetch_array($hasilg)) {
       });
 
     })
+
+    // Fungsi konfirmasi hapus
+    function confirmDelete(url) {
+        if (confirm('Apakah Anda yakin ingin menghapus riwayat ini?')) {
+            window.location.href = url;
+        }
+    }
 
     function labelFormatter(label, series) {
       return '<div style="font-size:13px; text-align:center; padding:2px; color: #fff; font-weight: 600;">'
