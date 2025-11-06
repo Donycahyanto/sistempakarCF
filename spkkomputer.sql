@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.3
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Waktu pembuatan: 31 Okt 2025 pada 15.53
--- Versi server: 8.4.3
--- Versi PHP: 8.3.26
+-- Host: 127.0.0.1
+-- Waktu pembuatan: 06 Nov 2025 pada 11.33
+-- Versi server: 10.4.32-MariaDB
+-- Versi PHP: 8.1.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Basis data: `spkkomputer`
+-- Database: `spkkomputer`
 --
 
 -- --------------------------------------------------------
@@ -28,10 +28,10 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `admin` (
-  `username` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `nama_lengkap` varchar(30) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `username` varchar(20) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `nama_lengkap` varchar(30) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data untuk tabel `admin`
@@ -48,12 +48,12 @@ INSERT INTO `admin` (`username`, `password`, `nama_lengkap`) VALUES
 --
 
 CREATE TABLE `basis_pengetahuan` (
-  `kode_pengetahuan` int NOT NULL,
-  `kode_kerusakan` int NOT NULL,
-  `kode_gejala` int NOT NULL,
+  `kode_pengetahuan` int(11) NOT NULL,
+  `kode_kerusakan` int(11) NOT NULL,
+  `kode_gejala` int(11) NOT NULL,
   `mb` double(11,1) NOT NULL,
   `md` double(11,1) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data untuk tabel `basis_pengetahuan`
@@ -121,9 +121,9 @@ INSERT INTO `basis_pengetahuan` (`kode_pengetahuan`, `kode_kerusakan`, `kode_gej
 --
 
 CREATE TABLE `gejala` (
-  `kode_gejala` int NOT NULL,
-  `nama_gejala` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `kode_gejala` int(11) NOT NULL,
+  `nama_gejala` varchar(100) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data untuk tabel `gejala`
@@ -171,69 +171,19 @@ INSERT INTO `gejala` (`kode_gejala`, `nama_gejala`) VALUES
 --
 
 CREATE TABLE `hasil` (
-  `id_hasil` int NOT NULL,
+  `id_hasil` int(11) NOT NULL,
   `tanggal` varchar(50) NOT NULL DEFAULT '0',
-  `kerusakan` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `kerusakan` text NOT NULL,
   `gejala` text NOT NULL,
-  `hasil_id` int NOT NULL,
+  `hasil_id` int(11) NOT NULL,
   `hasil_nilai` varchar(16) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data untuk tabel `hasil`
 --
 
 INSERT INTO `hasil` (`id_hasil`, `tanggal`, `kerusakan`, `gejala`, `hasil_id`, `hasil_nilai`) VALUES
-(201, '2018-02-20 13:25:09', 'a:10:{i:10;s:6:\"0.6480\";i:11;s:6:\"0.6000\";i:8;s:6:\"0.6000\";i:13;s:6:\"0.4800\";i:9;s:6:\"0.4720\";i:4;s:6:\"0.2960\";i:5;s:6:\"0.2400\";i:1;s:6:\"0.1200\";i:12;s:6:\"0.1200\";i:7;s:6:\"0.1200\";}', 'a:5:{i:1;s:1:\"3\";i:2;s:1:\"1\";i:3;s:1:\"5\";i:5;s:1:\"4\";i:7;s:1:\"2\";}', 10, '0.6480'),
-(202, '2018-02-20 15:51:20', 'a:9:{i:3;s:6:\"1.0000\";i:2;s:6:\"0.8240\";i:5;s:6:\"0.2400\";i:10;s:6:\"0.1200\";i:12;s:6:\"0.1200\";i:9;s:6:\"0.1200\";i:7;s:6:\"0.1200\";i:1;s:6:\"0.1200\";i:4;s:6:\"0.1200\";}', 'a:4:{i:1;s:1:\"3\";i:7;s:1:\"6\";i:14;s:1:\"1\";i:15;s:1:\"2\";}', 3, '1.0000'),
-(204, '2018-02-20 18:19:53', 'a:2:{i:2;s:6:\"0.6000\";i:13;s:6:\"0.4800\";}', 'a:4:{i:1;s:1:\"5\";i:3;s:1:\"2\";i:5;s:1:\"5\";i:7;s:1:\"2\";}', 2, '0.6000'),
-(205, '2018-02-20 18:20:05', 'a:2:{i:9;s:6:\"0.8000\";i:7;s:6:\"0.6000\";}', 'a:2:{i:38;s:1:\"3\";i:40;s:1:\"2\";}', 9, '0.8000'),
-(206, '2018-02-20 20:18:58', 'a:4:{i:10;s:6:\"1.0000\";i:9;s:6:\"0.6000\";i:7;s:6:\"0.6000\";i:11;s:6:\"0.4000\";}', 'a:4:{i:38;s:1:\"3\";i:40;s:1:\"3\";i:41;s:1:\"1\";i:42;s:1:\"4\";}', 10, '1.0000'),
-(207, '2018-02-20 20:19:30', 'a:2:{i:5;s:6:\"0.8000\";i:1;s:6:\"0.4800\";}', 'a:2:{i:12;s:1:\"3\";i:16;s:1:\"1\";}', 5, '0.8000'),
-(209, '2018-02-21 05:43:56', 'a:7:{i:2;s:6:\"0.6832\";i:5;s:6:\"0.2400\";i:12;s:6:\"0.1200\";i:10;s:6:\"0.1200\";i:7;s:6:\"0.1200\";i:1;s:6:\"0.1200\";i:4;s:6:\"0.1200\";}', 'a:3:{i:1;s:1:\"3\";i:3;s:1:\"2\";i:5;s:1:\"5\";}', 2, '0.6832'),
-(210, '2018-02-21 09:13:13', 'a:0:{}', 'a:3:{i:1;s:1:\"8\";i:3;s:1:\"9\";i:6;s:1:\"7\";}', 0, ''),
-(211, '2018-02-21 09:35:01', 'a:1:{i:12;s:6:\"0.4800\";}', 'a:1:{i:35;s:1:\"3\";}', 12, '0.4800'),
-(212, '2018-02-21 10:18:30', 'a:8:{i:5;s:6:\"0.1600\";i:10;s:6:\"0.0800\";i:12;s:6:\"0.0800\";i:9;s:6:\"0.0800\";i:7;s:6:\"0.0800\";i:4;s:6:\"0.0800\";i:1;s:6:\"0.0800\";i:2;s:6:\"0.0800\";}', 'a:1:{i:1;s:1:\"4\";}', 5, '0.1600'),
-(213, '2018-02-21 11:48:56', 'a:4:{i:4;s:6:\"0.2704\";i:11;s:6:\"0.2400\";i:8;s:6:\"0.2400\";i:10;s:6:\"0.2000\";}', 'a:3:{i:1;s:1:\"5\";i:2;s:1:\"4\";i:4;s:1:\"4\";}', 4, '0.2704'),
-(214, '2018-02-21 11:50:21', 'a:9:{i:13;s:6:\"0.4800\";i:2;s:6:\"0.3744\";i:5;s:6:\"0.1600\";i:12;s:6:\"0.0800\";i:10;s:6:\"0.0800\";i:7;s:6:\"0.0800\";i:4;s:6:\"0.0800\";i:1;s:6:\"0.0800\";i:9;s:6:\"0.0800\";}', 'a:3:{i:1;s:1:\"4\";i:3;s:1:\"4\";i:7;s:1:\"2\";}', 13, '0.4800'),
-(215, '2018-02-21 11:52:04', 'a:3:{i:7;s:6:\"0.6400\";i:5;s:6:\"0.6400\";i:2;s:6:\"0.6000\";}', 'a:4:{i:7;s:1:\"8\";i:15;s:1:\"3\";i:16;s:1:\"2\";i:39;s:1:\"2\";}', 7, '0.6400'),
-(216, '2018-02-21 11:52:21', 'a:2:{i:2;s:6:\"1.0000\";i:11;s:6:\"0.8560\";}', 'a:4:{i:5;s:1:\"5\";i:15;s:1:\"1\";i:36;s:1:\"2\";i:42;s:1:\"3\";}', 2, '1.0000'),
-(217, '2018-02-21 12:54:09', 'a:3:{i:9;s:6:\"0.8000\";i:1;s:6:\"0.6400\";i:5;s:6:\"0.3200\";}', 'a:3:{i:5;s:1:\"2\";i:12;s:1:\"2\";i:16;s:1:\"4\";}', 9, '0.8000'),
-(218, '2018-02-21 12:54:43', 'a:3:{i:9;s:6:\"0.8000\";i:1;s:6:\"0.6400\";i:5;s:6:\"0.3200\";}', 'a:3:{i:5;s:1:\"2\";i:12;s:1:\"2\";i:16;s:1:\"4\";}', 9, '0.8000'),
-(221, '2018-02-22 18:47:41', 'a:9:{i:2;s:6:\"0.8320\";i:10;s:6:\"0.4624\";i:11;s:6:\"0.3600\";i:8;s:6:\"0.3600\";i:5;s:6:\"0.3200\";i:12;s:6:\"0.1600\";i:7;s:6:\"0.1600\";i:9;s:6:\"0.1600\";i:1;s:6:\"0.1600\";}', 'a:4:{i:1;s:1:\"2\";i:2;s:1:\"3\";i:3;s:1:\"1\";i:4;s:1:\"7\";}', 2, '0.8320'),
-(222, '2018-02-27 14:12:19', 'a:7:{i:9;s:6:\"0.6640\";i:5;s:6:\"0.3200\";i:12;s:6:\"0.1600\";i:2;s:6:\"0.1600\";i:7;s:6:\"0.1600\";i:1;s:6:\"0.1600\";i:4;s:6:\"0.0400\";}', 'a:3:{i:1;s:1:\"2\";i:2;s:1:\"7\";i:5;s:1:\"3\";}', 9, '0.6640'),
-(223, '2018-03-01 14:53:58', 'a:10:{i:2;s:6:\"0.5632\";i:10;s:6:\"0.3616\";i:5;s:6:\"0.3200\";i:11;s:6:\"0.2400\";i:8;s:6:\"0.2400\";i:4;s:6:\"0.2272\";i:12;s:6:\"0.1600\";i:7;s:6:\"0.1600\";i:1;s:6:\"0.1600\";i:9;s:6:\"0.1600\";}', 'a:3:{i:1;s:1:\"2\";i:2;s:1:\"4\";i:3;s:1:\"3\";}', 2, '0.5632'),
-(225, '2018-03-07 05:26:33', 'a:0:{}', 'a:0:{}', 0, ''),
-(226, '2018-03-07 05:26:53', 'a:8:{i:5;s:6:\"0.2400\";i:10;s:6:\"0.1200\";i:12;s:6:\"0.1200\";i:9;s:6:\"0.1200\";i:7;s:6:\"0.1200\";i:4;s:6:\"0.1200\";i:1;s:6:\"0.1200\";i:2;s:6:\"0.1200\";}', 'a:1:{i:1;s:1:\"3\";}', 5, '0.2400'),
-(227, '2018-03-07 05:43:07', 'a:10:{i:3;s:6:\"1.0000\";i:13;s:6:\"0.3600\";i:5;s:6:\"0.3200\";i:12;s:6:\"0.1600\";i:2;s:6:\"0.1600\";i:10;s:6:\"0.1600\";i:9;s:6:\"0.1600\";i:1;s:6:\"0.1600\";i:7;s:6:\"0.1600\";i:4;s:6:\"0.1600\";}', 'a:3:{i:1;s:1:\"2\";i:7;s:1:\"3\";i:25;s:1:\"1\";}', 3, '1.0000'),
-(232, '2018-03-07 06:23:47', 'a:8:{i:5;s:6:\"0.3200\";i:10;s:6:\"0.1600\";i:12;s:6:\"0.1600\";i:9;s:6:\"0.1600\";i:7;s:6:\"0.1600\";i:2;s:6:\"0.1600\";i:1;s:6:\"0.1600\";i:4;s:6:\"0.0400\";}', 'a:2:{i:1;s:1:\"2\";i:4;s:1:\"5\";}', 5, '0.3200'),
-(233, '2018-03-07 06:24:13', 'a:8:{i:5;s:6:\"0.3200\";i:10;s:6:\"0.1600\";i:12;s:6:\"0.1600\";i:9;s:6:\"0.1600\";i:7;s:6:\"0.1600\";i:2;s:6:\"0.1600\";i:1;s:6:\"0.1600\";i:4;s:6:\"0.0400\";}', 'a:2:{i:1;s:1:\"2\";i:4;s:1:\"5\";}', 5, '0.3200'),
-(275, '2018-03-13 12:57:51', 'a:7:{i:5;s:6:\"0.4000\";i:10;s:6:\"0.2000\";i:12;s:6:\"0.2000\";i:9;s:6:\"0.2000\";i:7;s:6:\"0.2000\";i:4;s:6:\"0.2000\";i:2;s:6:\"0.2000\";}', 'a:1:{i:1;s:1:\"1\";}', 5, '0.4000'),
-(276, '2018-03-13 13:10:17', 'a:0:{}', 'a:1:{i:1;s:1:\"5\";}', 0, ''),
-(277, '2018-03-13 13:10:32', 'a:7:{i:5;s:6:\"0.1600\";i:10;s:6:\"0.0800\";i:12;s:6:\"0.0800\";i:9;s:6:\"0.0800\";i:7;s:6:\"0.0800\";i:4;s:6:\"0.0800\";i:2;s:6:\"0.0800\";}', 'a:1:{i:1;s:1:\"4\";}', 5, '0.1600'),
-(278, '2018-03-13 13:21:49', 'a:0:{}', 'a:1:{i:1;s:1:\"5\";}', 0, ''),
-(253, '2018-03-07 06:41:06', 'a:11:{i:10;s:6:\"0.6640\";i:11;s:6:\"0.6000\";i:8;s:6:\"0.6000\";i:4;s:6:\"0.3280\";i:5;s:6:\"0.3200\";i:3;s:6:\"0.3200\";i:12;s:6:\"0.1600\";i:7;s:6:\"0.1600\";i:2;s:6:\"0.1600\";i:1;s:6:\"0.1600\";i:9;s:6:\"0.1600\";}', 'a:3:{i:1;s:1:\"2\";i:2;s:1:\"1\";i:19;s:1:\"2\";}', 10, '0.6640'),
-(254, '2018-03-07 06:41:33', 'a:8:{i:2;s:6:\"0.6832\";i:5;s:6:\"0.2400\";i:10;s:6:\"0.1200\";i:12;s:6:\"0.1200\";i:9;s:6:\"0.1200\";i:7;s:6:\"0.1200\";i:1;s:6:\"0.1200\";i:4;s:6:\"0.1200\";}', 'a:2:{i:1;s:1:\"3\";i:3;s:1:\"2\";}', 2, '0.6832'),
-(255, '2018-03-07 06:45:39', 'a:0:{}', 'a:0:{}', 0, ''),
-(256, '2018-03-07 06:46:37', 'a:2:{i:13;s:6:\"0.5914\";i:4;s:6:\"0.2400\";}', 'a:4:{i:20;s:1:\"4\";i:27;s:1:\"3\";i:33;s:1:\"2\";i:34;s:1:\"3\";}', 13, '0.5914'),
-(257, '2018-03-09 00:50:24', 'a:0:{}', 'a:0:{}', 0, ''),
-(258, '2018-03-09 01:08:28', 'a:9:{i:10;s:6:\"0.5632\";i:11;s:6:\"0.4800\";i:8;s:6:\"0.4800\";i:5;s:6:\"0.3200\";i:4;s:6:\"0.2944\";i:12;s:6:\"0.1600\";i:9;s:6:\"0.1600\";i:2;s:6:\"0.1600\";i:7;s:6:\"0.1600\";}', 'a:2:{i:1;s:1:\"2\";i:2;s:1:\"2\";}', 10, '0.5632'),
-(259, '2018-03-09 01:26:39', 'a:1:{i:12;s:6:\"0.4800\";}', 'a:2:{i:16;s:1:\"8\";i:17;s:1:\"2\";}', 12, '0.4800'),
-(260, '2018-03-09 01:27:45', 'a:1:{i:12;s:6:\"0.4800\";}', 'a:2:{i:16;s:1:\"8\";i:17;s:1:\"2\";}', 12, '0.4800'),
-(261, '2018-03-09 04:51:04', 'a:10:{i:13;s:6:\"0.8960\";i:8;s:6:\"0.8128\";i:10;s:6:\"0.5840\";i:2;s:6:\"0.5840\";i:11;s:6:\"0.4800\";i:5;s:6:\"0.4000\";i:4;s:6:\"0.2080\";i:12;s:6:\"0.2000\";i:9;s:6:\"0.2000\";i:7;s:6:\"0.2000\";}', 'a:7:{i:1;s:1:\"1\";i:2;s:1:\"2\";i:3;s:1:\"3\";i:4;s:1:\"5\";i:7;s:1:\"2\";i:8;s:1:\"2\";i:18;s:1:\"2\";}', 13, '0.8960'),
-(262, '2018-03-10 00:04:05', 'a:3:{i:9;s:6:\"0.4800\";i:13;s:6:\"0.2400\";i:4;s:6:\"0.2400\";}', 'a:4:{i:4;s:1:\"4\";i:5;s:1:\"3\";i:7;s:1:\"4\";i:9;s:1:\"5\";}', 9, '0.4800'),
-(263, '2018-03-10 03:14:39', 'a:4:{i:1;s:6:\"0.6400\";i:12;s:6:\"0.3600\";i:6;s:6:\"0.2400\";i:9;s:6:\"0.2400\";}', 'a:3:{i:9;s:1:\"4\";i:12;s:1:\"2\";i:17;s:1:\"3\";}', 1, '0.6400'),
-(264, '2018-03-10 03:19:27', 'a:3:{i:11;s:6:\"1.0000\";i:10;s:6:\"0.4000\";i:9;s:6:\"0.4000\";}', 'a:3:{i:5;s:1:\"4\";i:37;s:1:\"1\";i:41;s:1:\"4\";}', 11, '1.0000'),
-(265, '2018-03-10 03:21:03', 'a:4:{i:8;s:6:\"0.9293\";i:11;s:6:\"0.4800\";i:10;s:6:\"0.4800\";i:4;s:6:\"0.1600\";}', 'a:4:{i:2;s:1:\"2\";i:18;s:1:\"4\";i:29;s:1:\"2\";i:34;s:1:\"5\";}', 8, '0.9293'),
-(266, '2018-03-10 03:22:27', 'a:3:{i:6;s:6:\"1.0000\";i:7;s:6:\"0.6000\";i:1;s:6:\"0.3200\";}', 'a:4:{i:12;s:1:\"4\";i:28;s:1:\"5\";i:30;s:1:\"1\";i:32;s:1:\"3\";}', 6, '1.0000'),
-(267, '2018-03-10 17:35:54', 'a:4:{i:9;s:6:\"0.8000\";i:6;s:6:\"0.4800\";i:13;s:6:\"0.2400\";i:4;s:6:\"0.1600\";}', 'a:3:{i:5;s:1:\"2\";i:7;s:1:\"4\";i:10;s:1:\"2\";}', 9, '0.8000'),
-(273, '2018-03-11 01:13:51', 'a:3:{i:6;s:6:\"0.8000\";i:5;s:6:\"0.6000\";i:13;s:6:\"0.0800\";}', 'a:3:{i:28;s:1:\"3\";i:30;s:1:\"2\";i:33;s:1:\"4\";}', 6, '0.8000'),
-(279, '2018-03-15 05:15:44', 'a:6:{i:5;s:6:\"0.3200\";i:12;s:6:\"0.1600\";i:10;s:6:\"0.1600\";i:7;s:6:\"0.1600\";i:2;s:6:\"0.1600\";i:9;s:6:\"0.0400\";}', 'a:3:{i:1;s:1:\"2\";i:4;s:1:\"8\";i:9;s:1:\"5\";}', 5, '0.3200'),
-(280, '2018-03-15 13:09:09', 'a:7:{i:5;s:6:\"0.4000\";i:10;s:6:\"0.2000\";i:12;s:6:\"0.2000\";i:9;s:6:\"0.2000\";i:7;s:6:\"0.2000\";i:4;s:6:\"0.2000\";i:2;s:6:\"0.2000\";}', 'a:1:{i:1;s:1:\"1\";}', 5, '0.4000'),
-(281, '2018-03-15 13:10:02', 'a:7:{i:5;s:6:\"0.4000\";i:10;s:6:\"0.2000\";i:12;s:6:\"0.2000\";i:9;s:6:\"0.2000\";i:7;s:6:\"0.2000\";i:4;s:6:\"0.2000\";i:2;s:6:\"0.2000\";}', 'a:1:{i:1;s:1:\"1\";}', 5, '0.4000'),
-(282, '2018-03-15 13:10:36', 'a:7:{i:5;s:6:\"0.4000\";i:10;s:6:\"0.2000\";i:12;s:6:\"0.2000\";i:9;s:6:\"0.2000\";i:7;s:6:\"0.2000\";i:4;s:6:\"0.2000\";i:2;s:6:\"0.2000\";}', 'a:1:{i:1;s:1:\"1\";}', 5, '0.4000'),
-(283, '2018-03-15 13:12:00', 'a:8:{i:10;s:6:\"0.6800\";i:4;s:6:\"0.5840\";i:5;s:6:\"0.4000\";i:6;s:6:\"0.3200\";i:12;s:6:\"0.2000\";i:2;s:6:\"0.2000\";i:9;s:6:\"0.2000\";i:7;s:6:\"0.2000\";}', 'a:5:{i:1;s:1:\"1\";i:6;s:1:\"4\";i:11;s:1:\"3\";i:14;s:1:\"9\";i:22;s:1:\"3\";}', 10, '0.6800'),
-(284, '2018-03-15 13:30:20', 'a:3:{i:11;s:6:\"0.6000\";i:12;s:6:\"0.4800\";i:13;s:6:\"0.0800\";}', 'a:5:{i:30;s:1:\"9\";i:32;s:1:\"5\";i:33;s:1:\"4\";i:35;s:1:\"3\";i:42;s:1:\"3\";}', 11, '0.6000'),
 (285, '2025-10-27 19:07:27', 'a:8:{i:10;s:6:\"0.6320\";i:8;s:6:\"0.6000\";i:11;s:6:\"0.6000\";i:4;s:6:\"0.2640\";i:5;s:6:\"0.1600\";i:7;s:6:\"0.0800\";i:9;s:6:\"0.0800\";i:12;s:6:\"0.0800\";}', 'a:3:{i:1;s:1:\"4\";i:2;s:1:\"1\";i:3;s:1:\"7\";}', 10, '0.6320'),
 (286, '2025-10-31 22:43:11', 'a:4:{i:1;s:6:\"0.8200\";i:2;s:6:\"0.6000\";i:4;s:6:\"0.6000\";i:7;s:6:\"0.1883\";}', 'a:4:{i:1;s:1:\"1\";i:2;s:1:\"2\";i:3;s:1:\"5\";i:5;s:1:\"5\";}', 1, '0.8200');
 
@@ -244,12 +194,12 @@ INSERT INTO `hasil` (`id_hasil`, `tanggal`, `kerusakan`, `gejala`, `hasil_id`, `
 --
 
 CREATE TABLE `kerusakan` (
-  `kode_kerusakan` int NOT NULL,
-  `nama_kerusakan` varchar(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `det_kerusakan` varchar(500) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `srn_kerusakan` varchar(500) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `kode_kerusakan` int(11) NOT NULL,
+  `nama_kerusakan` varchar(50) NOT NULL,
+  `det_kerusakan` varchar(500) NOT NULL,
+  `srn_kerusakan` varchar(500) NOT NULL,
   `gambar` varchar(500) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data untuk tabel `kerusakan`
@@ -274,10 +224,10 @@ INSERT INTO `kerusakan` (`kode_kerusakan`, `nama_kerusakan`, `det_kerusakan`, `s
 --
 
 CREATE TABLE `kondisi` (
-  `id` int NOT NULL,
+  `id` int(11) NOT NULL,
   `kondisi` varchar(64) NOT NULL,
   `ket` varchar(256) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data untuk tabel `kondisi`
@@ -301,12 +251,12 @@ INSERT INTO `kondisi` (`id`, `kondisi`, `ket`) VALUES
 --
 
 CREATE TABLE `post` (
-  `kode_post` int NOT NULL,
+  `kode_post` int(11) NOT NULL,
   `nama_post` varchar(50) NOT NULL,
   `det_post` varchar(15000) NOT NULL,
   `srn_post` varchar(15000) NOT NULL,
   `gambar` varchar(500) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data untuk tabel `post`
@@ -325,7 +275,7 @@ INSERT INTO `post` (`kode_post`, `nama_post`, `det_post`, `srn_post`, `gambar`) 
 (23, 'VGA Rusak', '<p>Ketika graphic card tidak berfungsi atau mati&nbsp;</p>\r\n', '<p>Bersihkan pin pada VGA card dan slot VGA card serta coba memakai display onboard motherboard, apabila pada onboard bisa menyala maka segera lakukan permintan barang</p>\r\n', '10.png');
 
 --
--- Indeks untuk tabel yang dibuang
+-- Indexes for dumped tables
 --
 
 --
@@ -378,37 +328,37 @@ ALTER TABLE `post`
 -- AUTO_INCREMENT untuk tabel `basis_pengetahuan`
 --
 ALTER TABLE `basis_pengetahuan`
-  MODIFY `kode_pengetahuan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
+  MODIFY `kode_pengetahuan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
 
 --
 -- AUTO_INCREMENT untuk tabel `gejala`
 --
 ALTER TABLE `gejala`
-  MODIFY `kode_gejala` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `kode_gejala` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT untuk tabel `hasil`
 --
 ALTER TABLE `hasil`
-  MODIFY `id_hasil` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=287;
+  MODIFY `id_hasil` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=287;
 
 --
 -- AUTO_INCREMENT untuk tabel `kerusakan`
 --
 ALTER TABLE `kerusakan`
-  MODIFY `kode_kerusakan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `kode_kerusakan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT untuk tabel `kondisi`
 --
 ALTER TABLE `kondisi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT untuk tabel `post`
 --
 ALTER TABLE `post`
-  MODIFY `kode_post` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `kode_post` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
