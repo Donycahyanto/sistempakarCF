@@ -41,7 +41,7 @@
   <!-- HAPUS semua div wrapper, langsung pakai article -->
   <article class="tc full-screen-container">
     <header class="mb4">
-      <img class="br-100 w4 h4 w5-l h5-l" src="gambar/admin/favicon3.png" alt="Profile headshot" />
+      <img src="gambar/admin/favicon1.png" width="120" height="120" />
       <h1 class="f3 lh-title mv2 dark-gray">SpakarCF</h1>
       <p class="f6 silver mt2 mb0">
         <a class="link dim silver">
