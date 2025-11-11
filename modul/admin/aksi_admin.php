@@ -42,8 +42,8 @@ if ($module === 'admin' && $act === 'input') {
             exit;
         }
 
-        // Hash password
-        $pass = md5($_POST['password']);
+        // ✅ BENAR - Gunakan password_hash() untuk admin baru
+        $pass = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
         // Prepared statement untuk insert
         $stmt = mysqli_prepare($conn, "INSERT INTO admin (username, password, nama_lengkap) VALUES (?, ?, ?)");
@@ -64,12 +64,9 @@ if ($module === 'admin' && $act === 'input') {
         mysqli_stmt_close($stmt);
         header('location:../../index.php?module=' . $module);
         exit;
-    } else {
-        $_SESSION['error'] = "Data formulir tidak lengkap";
-        header('location:../../index.php?module=' . $module);
-        exit;
     }
 }
+
 
 // Update admin
 if ($module === 'admin' && $act === 'update') {
