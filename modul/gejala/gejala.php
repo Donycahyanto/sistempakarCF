@@ -17,17 +17,7 @@ if (text_form.nama_gejala.value == "")
 }
 return (true);
 }
-function Blank_TextField_Validator_Cari()
-{
-if (text_form.keyword.value == "")
-{
-   alert("Isi dulu keyword pencarian !");
-   text_form.keyword.focus();
-   return (false);
-}
-return (true);
-}
-
+// Fungsi Blank_TextField_Validator_Cari() dihapus karena menggunakan filter real-time
 </script>
 <?php
 include "config/fungsi_alert.php";
@@ -47,75 +37,26 @@ switch ($_GET['act'] ?? '') {
 	}
   $tampil=mysqli_query($conn,"SELECT * FROM gejala ORDER BY kode_gejala");
   
-// Tambahkan sanitasi untuk keyword pencarian
-$keyword = isset($_POST['keyword']) ? htmlspecialchars($_POST['keyword'], ENT_QUOTES) : '';
-$keyword_db = isset($_POST['keyword']) ? mysqli_real_escape_string($conn, $_POST['keyword']) : '';
-
-echo "<form method=POST action='?module=gejala' name=text_form onsubmit='return Blank_TextField_Validator_Cari()'>
+// Form diubah: onsubmit='return false;' dan tombol 'Cari' dihapus
+echo "<form method=POST action='?module=gejala' name=text_form onsubmit='return false;'>
       <br><br><table class='table table-bordered'>
       <tr><td>
         <input class='btn bg-olive margin' type=button name=tambah value='Tambah Gejala' 
                onclick=\"window.location.href='?module=gejala&act=tambahgejala&offset=".$offset."';\">
-        <input type=text name='keyword' style='margin-left: 10px;' 
+        <input type=text name='keyword' id='keyword_search' style='margin-left: 10px;' 
                placeholder='Ketik dan tekan cari...' class='form-control' 
-               value='" . $keyword . "' /> 
-        <input class='btn bg-olive margin' type=submit value='   Cari   ' name=Go>
-      </td></tr>
+               value='' /> 
+        </td></tr>
       </table></form>";
 
-		  $baris=mysqli_num_rows($tampil);
+	$baris=mysqli_num_rows($tampil);
 		  
-	if (isset($_POST['Go'])){
-			$keyword = $_POST['keyword'];
-$numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_gejala LIKE '$keyword%'"));
-			if ($numrows > 0){
-				echo "<div class='alert alert-success alert-dismissible'>
-                <h4><i class='icon fa fa-check'></i> Sukses!</h4>
-                Gejala yang anda cari di temukan.
-              </div>";
-				$i = 1;
-	echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0'>
-          <thead>
-            <tr>
-              <th style='text-align: center;'>No</th>
-              <th>Nama Gejala</th>
-              <th style='text-align: center;' width='21%'>Aksi</th>
-            </tr>
-          </thead>
-		  <tbody>"; 
-	
-	$hasil = mysqli_query($conn,"SELECT * FROM gejala WHERE nama_gejala LIKE '$keyword%'");
-	$no = 1;
-	$counter = 1;
-    while ($r=mysqli_fetch_array($hasil)){
-        if ($counter % 2 == 0) $warna = "dark";
-        else $warna = "light";
-
-        // buat URL hapus yang aman untuk attribute HTML
-        $deleteUrl = htmlspecialchars($aksi . "?module=gejala&act=hapus&id=" . urlencode($r['kode_gejala']) . "&offset=" . $offset, ENT_QUOTES);
-
-       echo "<tr class='".$warna."'>
-             <td align=center>$no</td>
-             <td>".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."</td>
-             <td align=center>
-               <a class='btn btn-success margin' href='?module=gejala&act=editgejala&id=".urlencode($r['kode_gejala'])."&offset=".$offset."'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
-               <a class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','".$deleteUrl."','','','','u','n','Self','Self')\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
-             </td></tr>";
-      $no++;
-      $counter++;
-    }
-    echo "</tbody></table>";
-			}
-			else{
-				echo "<div class='alert alert-danger alert-dismissible'>
-                <h4><i class='icon fa fa-ban'></i> Gagal!</h4>
-                Maaf, Gejala yang anda cari tidak ditemukan , silahkan inputkan dengan benar dan cari kembali.
-              </div>";
-			}
-		}else{
+    // Blok pencarian berbasis POST (if (isset($_POST['Go'])) { ... }) telah dihapus.
+    // Hanya menyisakan blok tampilan tabel default.
 	
 	if($baris>0){
-	echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0'>
+	// ID tabel ditambahkan
+	echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0' id='gejalaTable'>
           <thead>
             <tr>
               <th style='text-align: center;'>No</th>
@@ -131,10 +72,10 @@ $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_g
     while ($r = mysqli_fetch_assoc($hasil)) {
         $warna = ($counter % 2 == 0) ? "dark" : "light";
 
-        // buat URL hapus yang aman untuk attribute HTML
+        // data-nama ditambahkan pada baris untuk filtering JavaScript
         $deleteUrl = htmlspecialchars($aksi . "?module=gejala&act=hapus&id=" . urlencode($r['kode_gejala']) . "&offset=" . $offset, ENT_QUOTES);
 
-        echo "<tr class='".$warna."'>
+        echo "<tr class='".$warna."' data-nama='".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."'>
              <td align='center'>".$no."</td>
              <td>".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."</td>
              <td align='center'>
@@ -177,7 +118,47 @@ $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM gejala WHERE nama_g
 	}else{
 	echo "<br><b>Data Kosong !</b>";
 	}
-	}
+
+    // Tambahkan CSS dan Skrip Filter Real-Time
+    ?>
+    <style>
+    .highlight {
+        background-color: #ffff99 !important;
+    }
+    </style>
+
+    <script>
+    $(function () {
+        // Fungsi untuk filtering Gejala
+        function filterTableGejala() {
+            var $rows = $('#gejalaTable tbody tr');
+            // Ambil nilai dari input keyword_search
+            var filterValue = $('#keyword_search').val().toLowerCase();
+            
+            $rows.each(function() {
+                // Ambil nama gejala dari atribut data-nama pada baris
+                var namaGejalaText = $(this).data('nama').toLowerCase();
+                
+                // Cek apakah teks gejala dimulai dengan nilai filter (filter 'starts with')
+                if (namaGejalaText.indexOf(filterValue) === 0) {
+                    $(this).show();
+                    $(this).removeClass('highlight');
+                    if (filterValue !== '') {
+                        $(this).addClass('highlight');
+                    }
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        // Event handler untuk filtering: jalankan filter saat ada input (real-time)
+        $('#keyword_search').on('keyup', function() {
+            filterTableGejala();
+        });
+    });
+    </script>
+    <?php
     break;
   
   case "tambahgejala":

@@ -18,16 +18,7 @@ if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
       }
       return (true);
     }
-    function Blank_TextField_Validator_Cari()
-    {
-      if (text_form.keyword.value == "")
-      {
-        alert("Isi dulu keyword pencarian !");
-        text_form.keyword.focus();
-        return (false);
-      }
-      return (true);
-    }
+    // Fungsi Blank_TextField_Validator_Cari() telah dihapus karena menggunakan filter real-time
   </script>
   <?php
 
@@ -43,84 +34,43 @@ if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
         $offset = 0;
       }
       $tampil = mysqli_query($conn,"SELECT * FROM kerusakan ORDER BY kode_kerusakan");
-      echo "<form method=POST action='?module=kerusakan' name=text_form onsubmit='return Blank_TextField_Validator_Cari()'>
+      // Form diubah agar tidak reload halaman (onsubmit='return false;')
+      echo "<form method=POST action='?module=kerusakan' name=text_form onsubmit='return false;'>
           <br><br><table class='table table-bordered'>
           <tr><td><input class='btn bg-olive margin' type=button name=tambah value='Tambah Kerusakan' onclick=\"window.location.href='kerusakan/tambahkerusakan';\">".
-          "<input type=text name='keyword' style='margin-left: 10px;' placeholder='Ketik dan tekan cari...' class='form-control' value='".htmlspecialchars($_POST['keyword'] ?? '', ENT_QUOTES)."' />".
-          " <input class='btn bg-olive margin' type=submit value='   Cari   ' name=Go></td> </tr>
+          // ID ditambahkan pada input pencarian (kotak filter)
+          "<input type=text name='keyword' id='keyword_search' style='margin-left: 10px;' placeholder='Ketik dan tekan cari...' class='form-control' value='' />".
+          // *** Tombol 'Cari' dihapus dari sini ***
+          "</td> </tr>
           </table></form>";
       $baris = mysqli_num_rows($tampil);
-      if ($_POST['Go'] ?? '') {
-        $numrows = mysqli_num_rows(mysqli_query($conn,"SELECT * FROM kerusakan where nama_kerusakan like '$_POST[keyword]%'"));
-        if ($numrows > 0) {
-          echo "<div class='alert alert-success alert-dismissible'>
-                <h4><i class='icon fa fa-check'></i> Sukses!</h4>
-                Kerusakan yang anda cari di temukan.
-              </div>";
-          $i = 1;
-          echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0'>
+      
+      // Blok tampilan tabel utama
+      if ($baris > 0) {
+        // ID TABLE DITAMBAHKAN
+        echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0' id='kerusakanTable'>
           <thead>
             <tr>
               <th>No</th>
-              <th>Nama Kerusakan</th>
-			  <th>Detail Kerusakan</th>
-			  <th>Saran Kerusakan</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-		  <tbody>";
-          $hasil = mysqli_query($conn,"SELECT * FROM kerusakan where nama_kerusakan like '$_POST[keyword]%'");
-          $no = 1;
-          $counter = 1;
-          while ($r = mysqli_fetch_array($hasil)) {
-            if ($counter % 2 == 0)
-              $warna = "dark";
-            else
-              $warna = "light";
-            echo "<tr class='" . $warna . "'>
-			 <td align=center>$no</td>
-			 <td>$r[nama_kerusakan]</td>
-			 <td>$r[det_kerusakan]</td>
-			 <td>$r[srn_kerusakan]</td>
-			 <td align=center><a type='button' class='btn btn-block btn-success' href=kerusakan/editkerusakan/$r[kode_kerusakan]><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
-	          <a type='button' class='btn btn-block btn-danger' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=kerusakan&act=hapus&id=$r[kode_kerusakan]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\"> <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
-             </td></tr>";
-            $no++;
-            $counter++;
-          }
-          echo "</tbody></table>";
-        }
-        else {
-          echo "<div class='alert alert-danger alert-dismissible'>
-                <h4><i class='icon fa fa-ban'></i> Gagal!</h4>
-                Maaf, Kerusakan yang anda cari tidak ditemukan , silahkan inputkan dengan benar dan cari kembali.
-              </div>";
-        }
-      } else {
-
-        if ($baris > 0) {
-          echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0'>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama Kerusakan</th>
-			  <th>Detail Kerusakan</th>
-			  <th>Saran Kerusakan</th>
+              <th width='20%'>Nama Kerusakan</th>
+              <th>Detail Kerusakan</th>
+              <th>Saran Kerusakan</th>
               <th>Aksi</th>
             </tr>
           </thead>
 		  <tbody>
 		  ";
-          $hasil = mysqli_query($conn,"SELECT * FROM kerusakan ORDER BY kode_kerusakan limit $offset,$limit");
-          $no = 1;
-          $no = 1 + $offset;
-          $counter = 1;
-          while ($r = mysqli_fetch_array($hasil)) {
-            if ($counter % 2 == 0)
-              $warna = "dark";
-            else
-              $warna = "light";
-            echo "<tr class='" . $warna . "'>
+        $hasil = mysqli_query($conn,"SELECT * FROM kerusakan ORDER BY kode_kerusakan limit $offset,$limit");
+        $no = 1;
+        $no = 1 + $offset;
+        $counter = 1;
+        while ($r = mysqli_fetch_array($hasil)) {
+          if ($counter % 2 == 0)
+            $warna = "dark";
+          else
+            $warna = "light";
+          // data-nama DITAMBAHKAN PADA BARIS untuk filtering
+          echo "<tr class='" . $warna . "' data-nama='" . htmlspecialchars($r['nama_kerusakan']) . "'>
 			 <td align=center>$no</td>
 			 <td>$r[nama_kerusakan]</td>
 			 <td>$r[det_kerusakan]</td>
@@ -130,48 +80,47 @@ if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
 	          <a type='button' class='btn btn-block btn-danger' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=kerusakan&act=hapus&id=$r[kode_kerusakan]','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\">
 			  <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
              </td></tr>";
-            $no++;
-            $counter++;
-          }
-          echo "</tbody></table>";
-          echo "<div class=paging>";
-
-          if ($offset != 0) {
-            $prevoffset = $offset - 10;
-            echo "<span class=prevnext> <a href=index.php?module=kerusakan&offset=$prevoffset>Back</a></span>";
-          } else {
-            echo "<span class=disabled>Back</span>"; //cetak halaman tanpa link
-          }
-          //hitung jumlah halaman
-          $halaman = intval($baris / $limit); //Pembulatan
-
-          if ($baris % $limit) {
-            $halaman++;
-          }
-          for ($i = 1; $i <= $halaman; $i++) {
-            $newoffset = $limit * ($i - 1);
-            if ($offset != $newoffset) {
-              echo "<a href=index.php?module=kerusakan&offset=$newoffset>$i</a>";
-              //cetak halaman
-            } else {
-              echo "<span class=current>" . $i . "</span>"; //cetak halaman tanpa link
-            }
-          }
-
-          //cek halaman akhir
-          if (!(($offset / $limit) + 1 == $halaman) && $halaman != 1) {
-
-            //jika bukan halaman terakhir maka berikan next
-            $newoffset = $offset + $limit;
-            echo "<span class=prevnext><a href=index.php?module=kerusakan&offset=$newoffset>Next</a>";
-          } else {
-            echo "<span class=disabled>Next</span>"; //cetak halaman tanpa link
-          }
-
-          echo "</div>";
-        } else {
-          echo "<br><b>Data Kosong !</b>";
+          $no++;
+          $counter++;
         }
+        echo "</tbody></table>";
+        echo "<div class=paging>";
+
+        if ($offset != 0) {
+          $prevoffset = $offset - 10;
+          echo "<span class=prevnext> <a href=index.php?module=kerusakan&offset=$prevoffset>Back</a></span>";
+        } else {
+          echo "<span class=disabled>Back</span>"; //cetak halaman tanpa link
+        }
+        //hitung jumlah halaman
+        $halaman = intval($baris / $limit); //Pembulatan
+
+        if ($baris % $limit) {
+          $halaman++;
+        }
+        for ($i = 1; $i <= $halaman; $i++) {
+          $newoffset = $limit * ($i - 1);
+          if ($offset != $newoffset) {
+            echo "<a href=index.php?module=kerusakan&offset=$newoffset>$i</a>";
+            //cetak halaman
+          } else {
+            echo "<span class=current>" . $i . "</span>"; //cetak halaman tanpa link
+          }
+        }
+
+        //cek halaman akhir
+        if (!(($offset / $limit) + 1 == $halaman) && $halaman != 1) {
+
+          //jika bukan halaman terakhir maka berikan next
+          $newoffset = $offset + $limit;
+          echo "<span class=prevnext><a href=index.php?module=kerusakan&offset=$newoffset>Next</a>";
+        } else {
+          echo "<span class=disabled>Next</span>"; //cetak halaman tanpa link
+        }
+
+        echo "</div>";
+      } else {
+        echo "<br><b>Data Kosong !</b>";
       }
       break;
 
@@ -210,9 +159,45 @@ if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
       break;
   }
   ?>
-<?php } ?>
+  <style>
+.highlight {
+    background-color: #ffff99 !important;
+}
+</style>
 
-  <script>
+<script>
+$(function () {
+    // Fungsi untuk filtering Kerusakan
+    function filterTableKerusakan() {
+        var $rows = $('#kerusakanTable tbody tr');
+        // Ambil nilai dari input keyword_search
+        var filterValue = $('#keyword_search').val().toLowerCase();
+        
+        $rows.each(function() {
+            // Ambil nama kerusakan dari atribut data-nama pada baris
+            var namaKerusakanText = $(this).data('nama').toLowerCase();
+            
+            // Cek apakah teks kerusakan dimulai dengan nilai filter (filter 'starts with')
+            if (namaKerusakanText.indexOf(filterValue) === 0) {
+                $(this).show();
+                $(this).removeClass('highlight');
+                if (filterValue !== '') {
+                    $(this).addClass('highlight');
+                }
+            } else {
+                $(this).hide();
+            }
+        });
+    }
+
+    // Event handler untuk filtering: jalankan filter saat ada input (real-time)
+    // Filter sekarang sepenuhnya bergantung pada event keyup (ketika mengetik)
+    $('#keyword_search').on('keyup', function() {
+        filterTableKerusakan();
+    });
+    
+    // Kode untuk tombol 'Cari' ('#search_button') telah dihapus di PHP dan di sini
+    
     function readURL(input) {
 
       if (input.files &&
@@ -229,8 +214,8 @@ if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
     $("#upload").change(function () {
       readURL(this);
     });
-
-    
-
-
-  </script>
+});
+</script>
+<?php
+} // Penutup blok else utama
+?>

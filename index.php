@@ -17,7 +17,7 @@ $module = isset($_GET['module']) ? $_GET['module'] : 'beranda';
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <base href="http://localhost/sistempakarCF/">
-	<link rel="icon" href="gambar/admin/favicon.png">
+	  <link rel="icon" href="gambar/admin/favicon.png">
     <link href="css/font-awesome-4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/owl-carousel/owl.carousel.css" rel="stylesheet"  media="all">
     <link href="css/owl-carousel/owl.theme.css" rel="stylesheet"  media="all">
@@ -30,7 +30,7 @@ $module = isset($_GET['module']) ? $_GET['module'] : 'beranda';
     <link rel="stylesheet" href="aset/bootstrap.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="aset/AdminLTE.css">
-	<link rel="stylesheet" href="aset/cinta.css">
+	  <link rel="stylesheet" href="aset/cinta.css">
     <link rel="stylesheet" href="aset/Ionicons/css/ionicons.min.css">
     <link rel="stylesheet" href="aset/skins/_all-skins.min.css">
     <link rel="stylesheet" href="aset/custom.css">
