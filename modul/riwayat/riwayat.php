@@ -178,16 +178,16 @@ switch ($_GET['act'] ?? '') {
 <script>
     $(function () {
 
-<?php
-$hasilg = mysqli_query($conn,"SELECT hasil_id, count('hasil_id') jlh_id FROM hasil group by hasil_id ORDER BY jlh_id desc");
-$arr = array(); // initialize array for chart data
-while ($rg = mysqli_fetch_array($hasilg)) {
-  if ($rg['hasil_id'] > 0) {
-    $label = isset($arpkt[$rg['hasil_id']]) ? '&nbsp;' . $arpkt[$rg['hasil_id']] : '&nbsp;Unknown Kerusakan';
-    $arr[] = array('label' => $label, 'data' => array(array('Kerusakan ' . $rg['hasil_id'], $rg['jlh_id'])));
-  }
-}
-?>
+      <?php
+      $hasilg = mysqli_query($conn,"SELECT hasil_id, count('hasil_id') jlh_id FROM hasil group by hasil_id ORDER BY jlh_id desc");
+      $arr = array(); // initialize array for chart data
+      while ($rg = mysqli_fetch_array($hasilg)) {
+        if ($rg['hasil_id'] > 0) {
+          $label = isset($arpkt[$rg['hasil_id']]) ? '&nbsp;' . $arpkt[$rg['hasil_id']] : '&nbsp;Unknown Kerusakan';
+          $arr[] = array('label' => $label, 'data' => array(array('Kerusakan ' . $rg['hasil_id'], $rg['jlh_id'])));
+        }
+      }
+      ?>
       var donutData = <?php echo json_encode($arr); ?>
 
       function legendFormatter(label, series) {
@@ -218,14 +218,16 @@ while ($rg = mysqli_fetch_array($hasilg)) {
         }
       })
 
-      // Fungsi untuk filtering kerusakan
+      // Fungsi untuk filtering kerusakan - DIMODIFIKASI
       function filterTable() {
           var $rows = $('#riwayatTable tbody tr');
           var filterValue = $('#riwayatTable .table-filter').val().toLowerCase();
           
           $rows.each(function() {
               var kerusakanText = $(this).data('kerusakan').toLowerCase();
-              if (kerusakanText.indexOf(filterValue) > -1) {
+              
+              // Cek apakah teks kerusakan dimulai dengan nilai filter
+              if (kerusakanText.indexOf(filterValue) === 0) {
                   $(this).show();
                   $(this).removeClass('highlight');
                   if (filterValue !== '') {
