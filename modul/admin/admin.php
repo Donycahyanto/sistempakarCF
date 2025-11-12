@@ -17,7 +17,7 @@ function Blank_TextField_Validator()
      form.username.focus();
      return false;
   }
-  // hanya periksa password jika field ada (saat tambah admin)
+  // hanya periksa password jika field ada (mis. saat tambah admin)
   if (form.password && form.password.value.trim() == "")
   {
      alert("Password tidak boleh kosong !");
@@ -26,71 +26,76 @@ function Blank_TextField_Validator()
   }
   return true;
 }
-// Fungsi Blank_TextField_Validator_Cari() dihapus karena kita pakai filter real-time
+// Fungsi Blank_TextField_Validator_Cari() dihapus karena kita pakai filter real-time (onsubmit='return false;')
 </script>
 <?php
 include "config/fungsi_alert.php";
 $act = $_GET['act'] ?? '';
 $aksi="modul/admin/aksi_admin.php";
 
-switch ($act) {
-	// Tampil Admin
+switch($act){
+	// Tampil admin
   default:
-    $offset = $_GET['offset'] ?? 0; // PAGING: Ambil offset
-    $keyword = ''; // PENCARIAN PHP LAMA DIHAPUS
+  $offset=$_GET['offset'] ?? 0;
+  // Variabel pencarian PHP dihapus karena tidak lagi digunakan
 
-    //jumlah data yang ditampilkan perpage
-	$limit = 10; // PAGING: Limit data
+	//jumlah data yang ditampilkan perpage
+	$limit = 10;
 	if (empty ($offset)) {
 		$offset = 0;
 	}
+  $tampil=mysqli_query($conn,"SELECT * FROM admin ORDER BY username");
+  
+  // FORM: onsubmit='return false;' dan tombol Cari dihapus
+	echo "<br><form method=POST action='?module=admin' name=text_form onsubmit='return false;'>
+          <br><table class='table table-bordered'>
+		  <tr><td><input class='btn bg-olive margin' type=button name=tambah value='Tambah Admin' onclick=\"window.location.href='?module=admin&act=tambahadmin';\">
+  <input type=text name='keyword' id='keyword_search' style='margin-left: 10px;' placeholder='Ketik dan tekan cari...' class='form-control' value='' /> 
+  </td></tr></table></form>";
 
-    $tampil=mysqli_query($conn,"SELECT * FROM admin ORDER BY username");
-    $baris=mysqli_num_rows($tampil);
-    
-    // Form filter real-time: onsubmit='return false;' dan tombol Cari dihapus
-	echo "<form method=POST action='?module=admin' name=text_form onsubmit='return false;'>
-          <br><br><table class='table table-bordered'>
-          <tr><td><input class='btn bg-olive margin' type=button name=tambah value='Tambah Admin' onclick=\"window.location.href='?module=admin&act=tambahadmin';\">".
-          // Input pencarian diberi ID
-          "<input type=text name='keyword' id='keyword_search' style='margin-left: 10px;' placeholder='Ketik dan tekan cari...' class='form-control' value='' />".
-          "</td> </tr>
-          </table></form>";
-	
-    
+  // CONTAINER UNTUK PESAN SUKSES/GAGAL (Akan diisi oleh JavaScript)
+  echo "<div id='search_message_container'></div>";
+
+  $baris=mysqli_num_rows($tampil);
+  
+  // LOGIKA PENCARIAN PHP LAMA DIHAPUS
+
 	if($baris>0){
-    // Tabel diberi ID untuk JavaScript Filtering
 	echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0' id='adminTable'>
           <thead>
             <tr>
-              <th width='5%' style='text-align: center;'>No</th> 
-              <th width='20%'>Username</th>
+              <th width='5%' style='text-align: center;'>No</th>
+              <th>Username</th>
               <th>Nama Lengkap</th>
               <th width='21%' style='text-align: center;'>Aksi</th>
             </tr>
           </thead>
 		  <tbody>
 		  "; 
-    // QUERY TETAP MEMAKAI LIMIT UNTUK PAGINATION PHP
+	// QUERY MEMAKAI LIMIT UNTUK PAGINATION PHP
 	$hasil = mysqli_query($conn,"SELECT * FROM admin ORDER BY username limit $offset,$limit");
-    $no = 1 + $offset; // MULAI NOMOR URUT DARI OFFSET
+	$no = 1 + $offset;
+	$counter = 1;
     while ($r=mysqli_fetch_array($hasil)){
-        // Data filter menggunakan gabungan Username dan Nama Lengkap
-        $data_filter = htmlspecialchars($r['username'] . " " . $r['nama_lengkap'], ENT_QUOTES);
-        
-        echo "<tr data-nama='".$data_filter."'>
-             <td align=center>$no</td> <td>".htmlspecialchars($r['username'], ENT_QUOTES)."</td>
+	if ($counter % 2 == 0) $warna = "dark";
+	else $warna = "light";
+    // Tambahkan data-filter attribute untuk JavaScript
+    $data_filter = htmlspecialchars($r['username'] . " " . $r['nama_lengkap'], ENT_QUOTES);
+
+       echo "<tr class='".$warna."' data-filter='".$data_filter."'>
+             <td align=center>$no</td>
+             <td>".htmlspecialchars($r['username'], ENT_QUOTES)."</td>
              <td>".htmlspecialchars($r['nama_lengkap'], ENT_QUOTES)."</td>
              <td align=center>
-               <a class='btn btn-success margin' href='?module=admin&act=editadmin&id=".urlencode($r['username'])."'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
-               <a class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=admin&act=hapus&id=".urlencode($r['username'])."','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\">
-               <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
+             <a type='button' class='btn btn-success margin' href=\"index.php?module=admin&act=editadmin&id=".rawurlencode($r['username'])."\"><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
+              <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=admin&act=hapus&id=".rawurlencode($r['username'])."','','','','u','n','Self','Self')\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
              </td></tr>";
-        $no++; // INCREMENT NOMOR URUT
+      $no++;
+	  $counter++;
     }
     echo "</tbody></table>";
-	
-    // KODE PAGINATION PHP (DI PERTAHANKAN SESUAI PERMINTAAN)
+    
+    // KODE PAGINATION PHP (DI PERTAHANKAN)
 	echo "<div class=paging>";
 
 	if ($offset!=0) {
@@ -129,34 +134,32 @@ switch ($act) {
 	}
 	
 	echo "</div>";
-	
-	} else {
-	    // KASUS: Data Admin kosong dari database
-	    echo "<br><b>Data Kosong !</b>";
+	}else{
+	echo "<br><b>Data Kosong !</b>";
 	}
-
-    // Tambahkan CSS dan Skrip Filter Real-Time (Disesuaikan dari file lain)
+    
+    // Tambahkan SKRIP JAVASCRIPT/JQUERY
     ?>
     <style>
+    /* CSS untuk highlight baris */
     .highlight {
         background-color: #ffff99 !important;
     }
     </style>
-
     <script>
     $(function () {
         // Fungsi untuk filtering Admin
         function filterTableAdmin() {
             var $rows = $('#adminTable tbody tr');
-            // Ambil nilai dari input keyword_search
-            var filterValue = $('#keyword_search').val().toLowerCase();
+            var filterValue = $('#keyword_search').val().toLowerCase().trim();
             var visibleRowCount = 0;
+            var messageContainer = $('#search_message_container');
             
             $rows.each(function() {
-                // Ambil data gabungan (Username dan Nama Lengkap) dari atribut data-nama
-                var dataText = $(this).data('nama').toLowerCase();
+                // Ambil data dari atribut data-filter (Username dan Nama Lengkap)
+                var dataText = $(this).data('filter').toLowerCase();
                 
-                // Filter hanya pada data di halaman ini
+                // Cek apakah teks dimulai dengan nilai filter (filter 'starts with')
                 if (dataText.startsWith(filterValue)) { 
                     $(this).show();
                     $(this).removeClass('highlight');
@@ -169,18 +172,36 @@ switch ($act) {
                 }
             });
 
-            // Logika Tampilkan/Sembunyikan pesan "Data tidak ditemukan"
-            if (visibleRowCount === 0 && $rows.length > 0) {
-                $('#adminTable').hide();
-                // Sembunyikan juga Paging saat filter kosong
-                $('.paging').hide(); 
-                if (!$('#no_data_message').length) {
-                    $('<div id="no_data_message"><br><b>Data Admin tidak ditemukan pada halaman ini.</b></div>').insertAfter('#adminTable');
+            // Logika Tampilkan/Sembunyikan pesan dan Paging
+            if (filterValue !== '') {
+                // Mode Pencarian Aktif (Filter tidak kosong)
+                $('.paging').hide(); // Sembunyikan paging saat mencari
+                
+                if (visibleRowCount === 0) {
+                    $('#adminTable').hide();
+                    
+                    // Tampilkan pesan GAGAL (alert-danger)
+                    messageContainer.html(
+                        "<div class='alert alert-danger alert-dismissible'>" +
+                        "<h4><i class='icon fa fa-ban'></i> Gagal!</h4>" +
+                        "Maaf, Admin yang anda cari tidak ditemukan pada halaman ini.</div>"
+                    ).show();
+
+                } else {
+                    $('#adminTable').show();
+                    
+                    // Tampilkan pesan SUKSES (alert-success)
+                    messageContainer.html(
+                        "<div class='alert alert-success alert-dismissible'>" +
+                        "<h4><i class='icon fa fa-check'></i> Sukses!</h4>" +
+                        "Admin yang anda cari di temukan pada halaman ini.</div>"
+                    ).show();
                 }
             } else {
+                // Mode Default (Filter kosong)
                 $('#adminTable').show();
-                $('.paging').show(); // Tampilkan Paging lagi
-                $('#no_data_message').remove();
+                messageContainer.empty().hide(); // Hapus pesan
+                $('.paging').show(); // Tampilkan paging
             }
         }
 
@@ -189,15 +210,15 @@ switch ($act) {
             filterTableAdmin();
         });
 
-        // Jalankan filter saat halaman dimuat (untuk konsistensi)
+        // Jalankan filter saat halaman dimuat
         filterTableAdmin();
     });
     </script>
     <?php
     break;
-
+  
   case "tambahadmin":
-    echo "<form name=text_form method=POST action='$aksi?module=admin&act=input' onsubmit='return Blank_TextField_Validator()'>
+	echo "<form name=text_form method=POST action='$aksi?module=admin&act=input' onsubmit='return Blank_TextField_Validator()'>
           <br><br><table class='table table-bordered'>
 		  <tr><td>Username</td> <td>  <input autocomplete='off' type=text class='form-control' name='username' size=30></td></tr>
 		  <tr><td>Password</td> <td>  <input autocomplete='off' type=password class='form-control' name='password' size=30></td></tr>
