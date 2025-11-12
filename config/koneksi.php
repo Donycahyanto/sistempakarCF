@@ -4,6 +4,7 @@
     $password = "";
     $database = "spkkomputer";
 
+   // Gunakan variabel yang didefinisikan di atas: $server, $username, $password, $database
    $conn = mysqli_connect($server, $username, $password, $database);
    
   //   if (mysqli_connect_errno()) {
@@ -12,7 +13,4 @@
   // } else {
   //     echo "Koneksi success";
   // } 
-?> 
-
-
-
+?>

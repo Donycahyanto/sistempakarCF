@@ -40,7 +40,7 @@ if (isset($_SESSION['username']) && isset($_SESSION['password'])) {
                 die("<h2>Form tidak lengkap</h2>");
             }
             
-            // Gunakan prepared statement
+            // 1. Ambil hash password dari database
             $stmt = mysqli_prepare($conn, "SELECT password FROM admin WHERE username = ?");
             mysqli_stmt_bind_param($stmt, "s", $_SESSION['username']);
             mysqli_stmt_execute($stmt);
@@ -51,31 +51,37 @@ if (isset($_SESSION['username']) && isset($_SESSION['password'])) {
                 die("<h2>User tidak ditemukan</h2>");
             }
 
-            // Verifikasi password lama
-            if ($data['password'] === md5($_POST['oldPass'])) { // TODO: Ganti ke password_verify
+            // 2. VERIFIKASI password lama (MENGGUNAKAN password_verify)
+            // Cek apakah password lama yang dimasukkan cocok dengan hash di database
+            if (password_verify($_POST['oldPass'], $data['password'])) { 
                 if ($_POST['newPass1'] === $_POST['newPass2']) {
                     if (strlen($_POST['newPass1']) < 5) {
                         echo "<h2>Password minimal 5 karakter</h2>";
                         break;
                     }
 
-                    // Update password
-                    $newPass = md5($_POST['newPass1']); // tetap menggunakan md5
-                    $stmt = mysqli_prepare($conn, "UPDATE admin SET password = ? WHERE username = ?");
-                    mysqli_stmt_bind_param($stmt, "ss", $newPass, $_SESSION['username']);
+                    // 3. HASH password baru (MENGGUNAKAN password_hash)
+                    $newPassHashed = password_hash($_POST['newPass1'], PASSWORD_DEFAULT);
                     
-                    if (mysqli_stmt_execute($stmt)) {
+                    // Update password dengan hash baru
+                    $stmt_update = mysqli_prepare($conn, "UPDATE admin SET password = ? WHERE username = ?");
+                    mysqli_stmt_bind_param($stmt_update, "ss", $newPassHashed, $_SESSION['username']);
+                    
+                    if (mysqli_stmt_execute($stmt_update)) {
                         // pop-up saat berhasil lalu kembali ke form password
                         echo "<script>alert('Password berhasil diubah'); window.location='?module=password';</script>";
                     } else {
                         echo "<h2>Gagal mengubah password</h2>";
                     }
+                    mysqli_stmt_close($stmt_update);
+                    
                 } else {
                     echo "<script>alert('Password baru tidak sama'); window.location='?module=password';</script>";
                 }
             } else {
                 echo "<script>alert('Password lama salah'); window.location='?module=password';</script>";
             }
+            mysqli_stmt_close($stmt);
             break;
     }
 } else {
