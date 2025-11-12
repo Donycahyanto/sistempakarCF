@@ -17,7 +17,7 @@ function Blank_TextField_Validator()
      form.username.focus();
      return false;
   }
-  // Baris validasi password ini akan diabaikan pada form Edit karena field password dihapus.
+  // hanya periksa password jika field ada (saat tambah admin)
   if (form.password && form.password.value.trim() == "")
   {
      alert("Password tidak boleh kosong !");
@@ -26,6 +26,7 @@ function Blank_TextField_Validator()
   }
   return true;
 }
+// Fungsi Blank_TextField_Validator_Cari() dihapus karena kita pakai filter real-time
 </script>
 <?php
 include "config/fungsi_alert.php";
@@ -35,10 +36,19 @@ $aksi="modul/admin/aksi_admin.php";
 switch ($act) {
 	// Tampil Admin
   default:
+    $offset = $_GET['offset'] ?? 0; // PAGING: Ambil offset
+    $keyword = ''; // PENCARIAN PHP LAMA DIHAPUS
+
+    //jumlah data yang ditampilkan perpage
+	$limit = 10; // PAGING: Limit data
+	if (empty ($offset)) {
+		$offset = 0;
+	}
+
     $tampil=mysqli_query($conn,"SELECT * FROM admin ORDER BY username");
     $baris=mysqli_num_rows($tampil);
     
-    // Form filter dan tombol Tambah
+    // Form filter real-time: onsubmit='return false;' dan tombol Cari dihapus
 	echo "<form method=POST action='?module=admin' name=text_form onsubmit='return false;'>
           <br><br><table class='table table-bordered'>
           <tr><td><input class='btn bg-olive margin' type=button name=tambah value='Tambah Admin' onclick=\"window.location.href='?module=admin&act=tambahadmin';\">".
@@ -49,7 +59,7 @@ switch ($act) {
 	
     
 	if($baris>0){
-    // Tabel Daftar Admin
+    // Tabel diberi ID untuk JavaScript Filtering
 	echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0' id='adminTable'>
           <thead>
             <tr>
@@ -61,29 +71,71 @@ switch ($act) {
           </thead>
 		  <tbody>
 		  "; 
-	$hasil = mysqli_query($conn,"SELECT * FROM admin ORDER BY username");
-    $no = 1; // INISIALISASI NOMOR URUT
+    // QUERY TETAP MEMAKAI LIMIT UNTUK PAGINATION PHP
+	$hasil = mysqli_query($conn,"SELECT * FROM admin ORDER BY username limit $offset,$limit");
+    $no = 1 + $offset; // MULAI NOMOR URUT DARI OFFSET
     while ($r=mysqli_fetch_array($hasil)){
+        // Data filter menggunakan gabungan Username dan Nama Lengkap
         $data_filter = htmlspecialchars($r['username'] . " " . $r['nama_lengkap'], ENT_QUOTES);
         
         echo "<tr data-nama='".$data_filter."'>
-             <td align=center>$no</td>
-             <td>".htmlspecialchars($r['username'], ENT_QUOTES)."</td>
+             <td align=center>$no</td> <td>".htmlspecialchars($r['username'], ENT_QUOTES)."</td>
              <td>".htmlspecialchars($r['nama_lengkap'], ENT_QUOTES)."</td>
              <td align=center>
                <a class='btn btn-success margin' href='?module=admin&act=editadmin&id=".urlencode($r['username'])."'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
                <a class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=admin&act=hapus&id=".urlencode($r['username'])."','','','','u','n','Self','Self')\" onMouseOver=\"self.status=''; return true\" onMouseOut=\"self.status=''; return true\">
                <i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
              </td></tr>";
-        $no++;
+        $no++; // INCREMENT NOMOR URUT
     }
     echo "</tbody></table>";
 	
+    // KODE PAGINATION PHP (DI PERTAHANKAN SESUAI PERMINTAAN)
+	echo "<div class=paging>";
+
+	if ($offset!=0) {
+		$prevoffset = $offset-10;
+		echo "<span class=prevnext> <a href=index.php?module=admin&offset=$prevoffset>Back</a></span>";
+	}
+	else {
+		echo "<span class=disabled>Back</span>";//cetak halaman tanpa link
+	}
+	//hitung jumlah halaman
+	$halaman = intval($baris/$limit);//Pembulatan
+
+	if ($baris%$limit){
+		$halaman++;
+	}
+	for($i=1;$i<=$halaman;$i++){
+		$newoffset = $limit * ($i-1);
+		if($offset!=$newoffset){
+			echo "<a href=index.php?module=admin&offset=$newoffset>$i</a>";
+			//cetak halaman
+		}
+		else {
+			echo "<span class=current>".$i."</span>";//cetak halaman tanpa link
+		}
+	}
+
+	//cek halaman akhir
+	if(!(($offset/$limit)+1==$halaman) && $halaman !=1){
+
+		//jika bukan halaman terakhir maka berikan next
+		$newoffset = $offset + $limit;
+		echo "<span class=prevnext><a href=index.php?module=admin&offset=$newoffset>Next</a>";
+	}
+	else {
+		echo "<span class=disabled>Next</span>";//cetak halaman tanpa link
+	}
+	
+	echo "</div>";
+	
 	} else {
+	    // KASUS: Data Admin kosong dari database
 	    echo "<br><b>Data Kosong !</b>";
 	}
 
-    // Skrip Filter Real-Time
+    // Tambahkan CSS dan Skrip Filter Real-Time (Disesuaikan dari file lain)
     ?>
     <style>
     .highlight {
@@ -93,28 +145,52 @@ switch ($act) {
 
     <script>
     $(function () {
+        // Fungsi untuk filtering Admin
         function filterTableAdmin() {
             var $rows = $('#adminTable tbody tr');
+            // Ambil nilai dari input keyword_search
             var filterValue = $('#keyword_search').val().toLowerCase();
+            var visibleRowCount = 0;
             
             $rows.each(function() {
+                // Ambil data gabungan (Username dan Nama Lengkap) dari atribut data-nama
                 var dataText = $(this).data('nama').toLowerCase();
                 
-                if (dataText.indexOf(filterValue) === 0) {
+                // Filter hanya pada data di halaman ini
+                if (dataText.startsWith(filterValue)) { 
                     $(this).show();
                     $(this).removeClass('highlight');
                     if (filterValue !== '') {
                         $(this).addClass('highlight');
                     }
+                    visibleRowCount++;
                 } else {
                     $(this).hide();
                 }
             });
+
+            // Logika Tampilkan/Sembunyikan pesan "Data tidak ditemukan"
+            if (visibleRowCount === 0 && $rows.length > 0) {
+                $('#adminTable').hide();
+                // Sembunyikan juga Paging saat filter kosong
+                $('.paging').hide(); 
+                if (!$('#no_data_message').length) {
+                    $('<div id="no_data_message"><br><b>Data Admin tidak ditemukan pada halaman ini.</b></div>').insertAfter('#adminTable');
+                }
+            } else {
+                $('#adminTable').show();
+                $('.paging').show(); // Tampilkan Paging lagi
+                $('#no_data_message').remove();
+            }
         }
 
+        // Event handler untuk filtering: jalankan filter saat ada input (real-time)
         $('#keyword_search').on('keyup', function() {
             filterTableAdmin();
         });
+
+        // Jalankan filter saat halaman dimuat (untuk konsistensi)
+        filterTableAdmin();
     });
     </script>
     <?php
@@ -132,9 +208,10 @@ switch ($act) {
      break;
     
   case "editadmin":
-    if (isset($_GET['id'])) {
-        $id_admin = mysqli_real_escape_string($conn, $_GET['id']);
-        $edit = mysqli_query($conn,"SELECT * FROM admin WHERE username='{$id_admin}'");
+    $id_admin = isset($_GET['id']) ? mysqli_real_escape_string($conn, $_GET['id']) : '';
+
+    if (!empty($id_admin)) {
+        $edit=mysqli_query($conn,"SELECT * FROM admin WHERE username='$id_admin'");
         
         if ($r=mysqli_fetch_array($edit)) {
         
@@ -149,10 +226,10 @@ switch ($act) {
             </table></form>";
             
         } else {
-            echo "<div class='alert alert-danger'>Admin dengan username '".htmlspecialchars($id_admin, ENT_QUOTES)."' tidak ditemukan.</div>";
+            echo "<div class='alert alert-danger'>Admin dengan username '$id_admin' tidak ditemukan.</div>";
         }
     } else {
-        echo "<div class='alert alert-danger'>Parameter ID tidak disediakan.</div>";
+        echo "<div class='alert alert-warning'>ID Admin tidak disediakan.</div>";
     }
     break;  
 }
