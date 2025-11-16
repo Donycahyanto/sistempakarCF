@@ -1,4 +1,4 @@
-<title>Gejala - Chirexs 1.0</title>
+<title>Gejala - SpakarCF</title>
 <?php
 
 if (!(isset($_SESSION['username']) && isset($_SESSION['password']))) {
@@ -36,136 +36,175 @@ switch ($_GET['act'] ?? '') {
 		$offset = 0;
 	}
   $tampil=mysqli_query($conn,"SELECT * FROM gejala ORDER BY kode_gejala");
+  $baris=mysqli_num_rows($tampil);
   
 // Form diubah: onsubmit='return false;' dan tombol 'Cari' dihapus
 echo "<form method=POST action='?module=gejala' name=text_form onsubmit='return false;'>
-      <br><br><table class='table table-bordered'>
-      <tr><td>
-        <input class='btn bg-olive margin' type=button name=tambah value='Tambah Gejala' 
-               onclick=\"window.location.href='?module=gejala&act=tambahgejala&offset=".$offset."';\">
-        <input type=text name='keyword' id='keyword_search' style='margin-left: 10px;' 
-               placeholder='Ketik dan tekan cari...' class='form-control' 
-               value='' /> 
-        </td></tr>
-      </table></form>";
+          <br><table class='table table-bordered'>
+		  <tr><td><input class='btn bg-olive margin' type=button name=tambah value='Tambah Gejala' onclick=\"window.location.href='?module=gejala&act=tambahgejala';\">
+          <input type=text name='keyword' id='keyword_search' style='margin-left: 10px;' placeholder='Ketik nama gejala...' class='form-control' value='' /> 
+          </td></tr></table></form>";
 
-	$baris=mysqli_num_rows($tampil);
-		  
-    // Blok pencarian berbasis POST (if (isset($_POST['Go'])) { ... }) telah dihapus.
-    // Hanya menyisakan blok tampilan tabel default.
-	
-	if($baris>0){
-	// ID tabel ditambahkan
-	echo" <table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0' id='gejalaTable'>
+// CONTAINER UNTUK PESAN SUKSES/GAGAL
+echo "<div id='search_message_container'></div>";
+
+if($baris>0){
+    // Tabel diberi ID untuk JavaScript Filtering
+echo "<table class='table table-bordered' style='overflow-x=auto' cellpadding='0' cellspacing='0' id='gejalaTable'>
           <thead>
             <tr>
-              <th style='text-align: center;'>No</th>
-              <th>Nama Gejala</th>
-              <th style='text-align: center;' width='21%'>Aksi</th>
+              <th width='5%' style='text-align: center;'>No</th>
+              <th width='55%'>Nama Gejala</th> <th width='40%' style='text-align: center;'>Aksi</th>
             </tr>
           </thead>
-		  <tbody>
-		  "; 
-	$hasil = mysqli_query($conn,"SELECT * FROM gejala ORDER BY kode_gejala LIMIT $offset,$limit");
-    $no = 1 + $offset;
-    $counter = 1;
-    while ($r = mysqli_fetch_assoc($hasil)) {
-        $warna = ($counter % 2 == 0) ? "dark" : "light";
+          <tbody>";
+          
+    // QUERY TETAP MEMAKAI LIMIT UNTUK PAGINATION PHP
+    $hasil=mysqli_query($conn,"SELECT * FROM gejala ORDER BY kode_gejala limit $offset,$limit");
+    $no=1+$offset;
+    $counter=1;
 
-        // data-nama ditambahkan pada baris untuk filtering JavaScript
-        $deleteUrl = htmlspecialchars($aksi . "?module=gejala&act=hapus&id=" . urlencode($r['kode_gejala']) . "&offset=" . $offset, ENT_QUOTES);
+	while ($r=mysqli_fetch_array($hasil)){
+    if($counter % 2 == 0) $warna="dark"; else $warna="light";
+    
+    // Data filter HANYA menggunakan Nama Gejala
+    $data_filter = htmlspecialchars($r['nama_gejala'], ENT_QUOTES); 
 
-        echo "<tr class='".$warna."' data-nama='".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."'>
-             <td align='center'>".$no."</td>
-             <td>".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."</td>
-             <td align='center'>
-               <a class='btn btn-success margin' href='?module=gejala&act=editgejala&id=".urlencode($r['kode_gejala'])."&offset=".$offset."'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
-               <a class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','".$deleteUrl."','','','','u','n','Self','Self')\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
-             </td></tr>";
-        $no++;
-        $counter++;
-    }
-    echo "</tbody></table>";
+	echo "<tr class='".$warna."' data-filter='".$data_filter."'>
+          <td align=center>$no</td>
+          <td>".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."</td>
+          <td align=center>
+          <a type='button' class='btn btn-success margin' href='index.php?module=gejala&act=editgejala&id=".rawurlencode($r['kode_gejala'])."&offset=$offset'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Ubah </a> &nbsp;
+          <a type='button' class='btn btn-danger margin' href=\"JavaScript: confirmIt('Anda yakin akan menghapusnya ?','$aksi?module=gejala&act=hapus&id=".rawurlencode($r['kode_gejala'])."&offset=$offset','','','','u','n','Self','Self')\"><i class='fa fa-trash-o' aria-hidden='true'></i> Hapus</a>
+          </td></tr>";
+    $no++;
+    $counter++;
+	}
+	echo "</tbody></table>";
+  
+    // KODE PAGINATION PHP (DI PERTAHANKAN)
     echo "<div class=paging>";
 
-    if ($offset != 0) {
-        $prevoffset = max(0, $offset - $limit);
-        echo "<span class=prevnext> <a href='index.php?module=gejala&offset=$prevoffset'>Back</a></span>";
-    } else {
-        echo "<span class=disabled>Back</span>";
-    }
-    // hitung jumlah halaman
-    $halaman = intval($baris / $limit);
-    if ($baris % $limit) $halaman++;
-    for ($i = 1; $i <= $halaman; $i++) {
-        $newoffset = $limit * ($i - 1);
-        if ($offset != $newoffset) {
-            echo "<a href='index.php?module=gejala&offset=$newoffset'>$i</a>";
-        } else {
-            echo "<span class=current>" . $i . "</span>";
-        }
-    }
-
-    // cek halaman akhir
-    if (!(($offset / $limit) + 1 == $halaman) && $halaman != 1) {
-        $newoffset = $offset + $limit;
-        echo "<span class=prevnext><a href='index.php?module=gejala&offset=$newoffset'>Next</a></span>";
-    } else {
-        echo "<span class=disabled>Next</span>";
-    }
-
-    echo "</div>";
+	if ($offset!=0) {
+		$prevoffset=$offset-$limit;
+		echo "<span class=prevnext> <a href=index.php?module=gejala&offset=$prevoffset>Back</a></span>";
 	}else{
-	echo "<br><b>Data Kosong !</b>";
+		echo "<span class=disabled>Back</span>"; //cetak halaman tanpa link
+	}
+	//hitung jumlah halaman
+	$halaman=intval($baris/$limit);//Pembulatan 
+
+	if ($baris%$limit){
+		$halaman++;
+	}
+	for($i=1;$i<=$halaman;$i++){
+		$newoffset=$limit*($i-1);
+		if($offset!=$newoffset){
+			echo "<a href=index.php?module=gejala&offset=$newoffset>$i</a>";
+			//cetak halaman
+		}else{
+			echo "<span class=current>".$i."</span>"; //cetak halaman tanpa link
+		}
 	}
 
-    // Tambahkan CSS dan Skrip Filter Real-Time
+	//cek halaman akhir
+	if(!(($offset/$limit)+1==$halaman) && $halaman!=1){
+
+		//jika bukan halaman terakhir maka berikan next
+		$newoffset=$offset+$limit;
+		echo "<span class=prevnext><a href=index.php?module=gejala&offset=$newoffset>Next</a>";
+	}else{
+		echo "<span class=disabled>Next</span>"; //cetak halaman tanpa link
+	}
+
+	echo "</div>";
+    }else{
+      echo "<br><b>Data Gejala Kosong !</b>";
+    }
+  
+    // SKRIP JAVASCRIPT/JQUERY UNTUK FILTER REAL-TIME DAN ALERT DINAMIS
     ?>
     <style>
+    /* CSS untuk highlight baris */
     .highlight {
         background-color: #ffff99 !important;
     }
     </style>
-
     <script>
     $(function () {
         // Fungsi untuk filtering Gejala
         function filterTableGejala() {
             var $rows = $('#gejalaTable tbody tr');
-            // Ambil nilai dari input keyword_search
-            var filterValue = $('#keyword_search').val().toLowerCase();
+            var filterValue = $('#keyword_search').val().toLowerCase().trim();
+            var visibleRowCount = 0;
+            var messageContainer = $('#search_message_container');
             
             $rows.each(function() {
-                // Ambil nama gejala dari atribut data-nama pada baris
-                var namaGejalaText = $(this).data('nama').toLowerCase();
+                // Ambil data dari atribut data-filter (Yaitu HANYA Nama Gejala)
+                var dataText = $(this).data('filter').toLowerCase();
                 
-                // Cek apakah teks gejala dimulai dengan nilai filter (filter 'starts with')
-                if (namaGejalaText.indexOf(filterValue) === 0) {
+                // Cek apakah teks dimulai dengan nilai filter (filter 'starts with')
+                if (dataText.startsWith(filterValue)) { 
                     $(this).show();
                     $(this).removeClass('highlight');
                     if (filterValue !== '') {
                         $(this).addClass('highlight');
                     }
+                    visibleRowCount++;
                 } else {
                     $(this).hide();
                 }
             });
+
+            // Logika Tampilkan/Sembunyikan pesan dan Paging
+            if (filterValue !== '') {
+                // Mode Pencarian Aktif (Filter tidak kosong)
+                $('.paging').hide(); // Sembunyikan paging saat mencari
+                
+                if (visibleRowCount === 0) {
+                    $('#gejalaTable').hide();
+                    
+                    // Tampilkan pesan GAGAL (alert-danger)
+                    messageContainer.html(
+                        "<div class='alert alert-danger alert-dismissible'>" +
+                        "<h4><i class='icon fa fa-ban'></i> Gagal!</h4>" +
+                        "Maaf, Gejala yang anda cari tidak ditemukan pada halaman ini.</div>"
+                    ).show();
+
+                } else {
+                    $('#gejalaTable').show();
+                    
+                    // Tampilkan pesan SUKSES (alert-success)
+                    messageContainer.html(
+                        "<div class='alert alert-success alert-dismissible'>" +
+                        "<h4><i class='icon fa fa-check'></i> Sukses!</h4>" +
+                        "Gejala yang anda cari di temukan pada halaman ini.</div>"
+                    ).show();
+                }
+            } else {
+                // Mode Default (Filter kosong)
+                $('#gejalaTable').show();
+                messageContainer.empty().hide(); // Hapus pesan
+                $('.paging').show(); // Tampilkan paging
+            }
         }
 
         // Event handler untuk filtering: jalankan filter saat ada input (real-time)
         $('#keyword_search').on('keyup', function() {
             filterTableGejala();
         });
+
+        // Jalankan filter saat halaman dimuat
+        filterTableGejala();
     });
     </script>
     <?php
     break;
-  
+
   case "tambahgejala":
     echo "<form name=text_form method=POST action='$aksi?module=gejala&act=input' onsubmit='return Blank_TextField_Validator()'>
-          <input type='hidden' name='offset' value='".intval($offset)."'>
           <br><br><table class='table table-bordered'>
-		  <tr><td width=120>Nama Gejala</td><td><input type=text autocomplete='off' placeholder='Masukkan gejala baru...' class='form-control' name='nama_gejala' size=30></td></tr>
+          <tr><td width=120>Nama Gejala</td><td><input autocomplete='off' placeholder='Masukkan gejala baru...' class='form-control' name='nama_gejala' size=30></td></tr>
 		  <tr><td></td><td><input class='btn btn-success' type=submit name=submit value='Simpan' >
 		  <input class='btn btn-danger' type=button name=batal value='Batal' onclick=\"window.location.href='?module=gejala';\"></td></tr>
           </table></form>";
@@ -182,9 +221,10 @@ echo "<form method=POST action='?module=gejala' name=text_form onsubmit='return 
           <br><br><table class='table table-bordered'>
           <tr><td width=120>Nama Gejala</td><td><input autocomplete='off' type=text class='form-control' name='nama_gejala' size=30 value=\"".htmlspecialchars($r['nama_gejala'], ENT_QUOTES)."\"></td></tr>
           <tr><td></td><td><input class='btn btn-success' type=submit name=submit value='Simpan' >
-          <input class='btn btn-danger' type=button value='Batal' onclick=\"window.location.href='?module=gejala&offset=".$curOffset."';\"></td></tr>
+          <input class='btn btn-danger' type=button name=batal value='Batal' onclick=\"window.location.href='?module=gejala&offset=$curOffset';\"></td></tr>
           </table></form>";
-    break;  
+     break;
 }
+
 ?>
 <?php } ?>

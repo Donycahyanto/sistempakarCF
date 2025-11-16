@@ -1,4 +1,4 @@
-<title>Riwayat - Chirexs 1.0</title>
+<title>Riwayat - SpakarCF</title>
 <h2 class='text text-primary'>Riwayat Konsultasi</h2>
 <hr>
 <?php
@@ -48,12 +48,15 @@ switch ($_GET['act'] ?? '') {
         $tampil = mysqli_query($conn,"SELECT * FROM hasil ORDER BY id_hasil");
         $baris = mysqli_num_rows($tampil);
         if ($baris > 0) {
+            // CONTAINER UNTUK PESAN SUKSES/GAGAL DYNAMIC ALERT
+            echo "<div id='search_message_container'></div>"; 
+            
             echo"<div class='row'><div class='col-md-8'><table class='table table-bordered table-striped riwayat' id='riwayatTable' style='overflow-x=auto' cellpadding='0' cellspacing='0'>
           <thead>
             <tr>
               <th>No</th>
               <th>Tanggal</th>
-              <th>Kerusakan
+              <th>
                 <input type='text' class='table-filter' data-column='2' placeholder='Cari kerusakan...' style='width: 100%; margin-top: 5px; padding: 6px; font-size: 12px; border: 1px solid #ccc; background-color: white; color: #333; border-radius: 3px;'>
               </th>
               <th nowrap>Nilai CF</th>
@@ -107,8 +110,7 @@ switch ($_GET['act'] ?? '') {
                   <hr>
                   <div id="legend-container"></div>
                 </div>
-                <!-- /.box-body-->
-              </div>
+                </div>
             </div>
 
             <?php
@@ -221,28 +223,68 @@ switch ($_GET['act'] ?? '') {
       // Fungsi untuk filtering kerusakan - DIMODIFIKASI
       function filterTable() {
           var $rows = $('#riwayatTable tbody tr');
-          var filterValue = $('#riwayatTable .table-filter').val().toLowerCase();
+          var filterValue = $('#riwayatTable .table-filter').val().toLowerCase().trim();
+          var visibleRowCount = 0;
+          var messageContainer = $('#search_message_container');
           
           $rows.each(function() {
               var kerusakanText = $(this).data('kerusakan').toLowerCase();
               
               // Cek apakah teks kerusakan dimulai dengan nilai filter
-              if (kerusakanText.indexOf(filterValue) === 0) {
+              if (kerusakanText.startsWith(filterValue)) {
                   $(this).show();
                   $(this).removeClass('highlight');
                   if (filterValue !== '') {
                       $(this).addClass('highlight');
                   }
+                  visibleRowCount++;
               } else {
                   $(this).hide();
               }
           });
+
+          // Logika Tampilkan/Sembunyikan pesan dan Paging
+          if (filterValue !== '') {
+              // Mode Pencarian Aktif (Filter tidak kosong)
+              $('.paging').hide(); // Sembunyikan paging saat mencari
+              $('#riwayatTable').show(); // Pastikan tabel selalu terlihat
+
+              if (visibleRowCount === 0) {
+                  
+                  // Tampilkan pesan GAGAL (alert-danger)
+                  messageContainer.html(
+                      "<div class='alert alert-danger alert-dismissible'>" +
+                      "<h4><i class='icon fa fa-ban'></i> Gagal!</h4>" +
+                      "Maaf, riwayat yang anda cari tidak ditemukan pada halaman ini.</div>"
+                  ).show();
+
+              } else {
+                  
+                  // Tampilkan pesan SUKSES (alert-success)
+                  messageContainer.html(
+                      "<div class='alert alert-success alert-dismissible'>" +
+                      "<h4><i class='icon fa fa-check'></i> Sukses!</h4>" +
+                      "Riwayat yang anda cari di temukan pada halaman ini.</div>"
+                  ).show();
+              }
+          } else {
+              // Mode Default (Filter kosong)
+              $('#riwayatTable').show();
+              messageContainer.empty().hide(); // Hapus pesan
+              $('.paging').show(); // Tampilkan paging
+          }
+
+          // **Pertahankan fokus pada input agar bisa terus mengetik**
+          $('.table-filter').focus(); 
       }
 
       // Event handler untuk filtering
       $('.table-filter').on('keyup', function() {
           filterTable();
       });
+      
+      // Jalankan filter saat halaman dimuat
+      filterTable(); 
 
     })
 

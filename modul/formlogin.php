@@ -21,7 +21,7 @@ return (true);
 <html lang="en" >
 <head>
   <meta charset="UTF-8">
-  <title>Login Pakar - Chirexs 1.0</title>
+  <title>Login Pakar - SpakarCF</title>
       <link rel="stylesheet" href="aset/login/css/style.css">
 </head>
   <body>
@@ -41,7 +41,6 @@ return (true);
 <input type="text" name="username" id="username" placeHolder="&#xf007;  Username" style="font-family:Arial, FontAwesome" />
 <input type="password" name="password" id="password" placeHolder="&#xf023;  Password" style="font-family:Arial, FontAwesome" />
 <input type="submit" name="submit" id="submitku" value="   Login   " /><br>
- <p class="message">Ingin mendaftar? <a href="https://goo.gl/forms/OlZywbPBrBcG2nSy1" target="_blank">Ajukan Permohonan</a></p>
   </form>
 </div>
 </body>

@@ -34,7 +34,7 @@ function tampilkanErrorLogin() {
         <link href='css/main.css' rel='stylesheet' type='text/css' media='all'/>
         <link rel='stylesheet' href='aset/bootstrap.css'>
         <div class='errorpage'> <center><div class='danger'><i class='fa fa-exclamation-triangle'></i></div><br><h1>LOGIN GAGAL!</h1>
-        Username dan Password anda salah.<br><br><input name='submit' id='submitku' type=submit style='padding: 6px 12px;' value='ULANGI LAGI' onclick=location.href='formlogin'></a><br><p class='message'>Masih bingung, Kembali ke <a href='bantuan'>Halaman Bantuan</a></p></center></div>
+        Username dan Password anda salah.<br><br><input name='submit' id='submitku' type=submit style='padding: 6px 12px;' value='ULANGI LAGI' onclick=location.href='formlogin'></a><br></center></div>
 <div class='chick-wrapper-landing show'>
   <div class='wing-back'></div>
   <div class='body'>

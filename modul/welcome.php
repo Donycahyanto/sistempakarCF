@@ -1,4 +1,4 @@
-<title>Beranda - Chirexs 1.0</title>
+<title>Beranda - SpakarCF</title>
 <?php 
   $htgejala=mysqli_query($conn,"SELECT count(*) as total from gejala");
 	$dtgejala=mysqli_fetch_assoc($htgejala); ?>

@@ -1,4 +1,4 @@
-<title>Diagnosa - Chirexs 1.0</title>
+<title>Diagnosa - SpakarCF</title>
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);

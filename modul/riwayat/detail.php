@@ -1,7 +1,7 @@
 <?php
 // ...existing code...
 ?>
-<title>Detail Riwayat - Chirexs 1.0</title>
+<title>Detail Riwayat - SpakarCF</title>
 <?php
 
 // pastikan koneksi $conn tersedia dari index/loader
